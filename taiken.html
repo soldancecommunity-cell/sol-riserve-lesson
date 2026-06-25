@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>体験レッスン予約 | SoL Dance School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SoL 体験レッスン予約 — サンライズ・テーマ
+   （SoL = 太陽 / 旭川 = 朝日 を象徴する日の出のアクセント）
+   ============================================================ */
+:root{
+  --bg:#FBFAF6; --surface:#ffffff; --surface-2:#F5F2EA;
+  --ink:#1d1b24; --ink-2:#6c6a75; --ink-3:#a9a7b1;
+  --line:#ece9e0; --line-2:#dcd8ce;
+  --sun-1:#ff6a45; --sun-2:#ff9233; --sun-3:#ffc23c;
+  --accent:#ff7a45; --accent-deep:#cf4720; --accent-soft:#fff2ec;
+  --sun:#2c7be5; --sat:#2c7be5; --sun-red:#e0573f;
+  --ok:#1f9d63; --warn:#dd9024; --danger:#d7493b;
+  --r:18px; --r-sm:12px;
+  --shadow:0 1px 2px rgba(29,27,36,.04),0 12px 32px rgba(29,27,36,.07);
+  --shadow-sm:0 1px 2px rgba(29,27,36,.05),0 4px 14px rgba(29,27,36,.05);
+  --sunrise:linear-gradient(95deg,var(--sun-1),var(--sun-2) 55%,var(--sun-3));
+  --font:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  --num:"Outfit","Noto Sans JP",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font); color:var(--ink); background:var(--bg);
+  line-height:1.6; -webkit-font-smoothing:antialiased;
+  font-size:15px; min-height:100vh;
+}
+.wrap{max-width:480px; margin:0 auto; min-height:100vh; position:relative;
+  padding-bottom:env(safe-area-inset-bottom);}
+
+/* ---- ヘッダー ---- */
+.appbar{
+  position:sticky; top:0; z-index:40; background:rgba(251,250,246,.86);
+  backdrop-filter:saturate(150%) blur(12px);
+  padding:14px 18px 10px; border-bottom:1px solid var(--line);
+}
+.brandline{display:flex; align-items:center; gap:10px}
+.sunmark{width:26px; height:26px; flex:none; position:relative}
+.brand-txt{display:flex; flex-direction:column; line-height:1.15}
+.brand-txt b{font-size:16px; letter-spacing:.01em}
+.brand-txt span{font-family:var(--num); font-size:9.5px; letter-spacing:.22em;
+  color:var(--ink-3); text-transform:uppercase; font-weight:600}
+.appbar .underline{height:3px; border-radius:3px; background:var(--sunrise);
+  margin-top:10px; width:100%; opacity:.92}
+.toplink{position:absolute; right:16px; top:15px; font-size:12px; color:var(--accent-deep);
+  background:var(--accent-soft); border:none; padding:7px 11px; border-radius:999px;
+  font-family:var(--font); font-weight:500; cursor:pointer}
+
+/* ---- ステップ ---- */
+.steps{display:flex; align-items:center; gap:6px; padding:14px 18px 4px;}
+.step{display:flex; align-items:center; gap:7px; opacity:.4; transition:opacity .3s}
+.step.on{opacity:1}
+.step .n{width:22px; height:22px; border-radius:50%; display:grid; place-items:center;
+  font-family:var(--num); font-weight:700; font-size:12px; background:var(--surface-2);
+  color:var(--ink-2); border:1px solid var(--line-2)}
+.step.on .n{background:var(--sunrise); color:#fff; border-color:transparent;
+  box-shadow:0 3px 9px rgba(255,122,69,.4)}
+.step .lab{font-size:12px; font-weight:500; color:var(--ink-2)}
+.step.on .lab{color:var(--ink)}
+.step .bar{width:14px; height:2px; background:var(--line-2); border-radius:2px}
+
+/* ---- 共通レイアウト ---- */
+.view{display:none; padding:8px 16px 40px; animation:rise .35s ease both}
+.view.active{display:block}
+@keyframes rise{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); padding:16px; margin-top:14px}
+.eyebrow{font-family:var(--num); font-size:10.5px; letter-spacing:.18em; font-weight:600;
+  color:var(--accent-deep); text-transform:uppercase}
+.h-lead{font-size:20px; font-weight:700; letter-spacing:.01em; margin:6px 0 2px}
+.sub{color:var(--ink-2); font-size:13px}
+
+/* ---- カレンダー ---- */
+.calhead{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px}
+.calhead .ym{font-family:var(--num); font-weight:700; font-size:19px; letter-spacing:.01em}
+.calhead .ym small{font-family:var(--font); font-size:12px; color:var(--ink-2); font-weight:500; margin-left:4px}
+.navbtn{width:38px; height:38px; border-radius:12px; border:1px solid var(--line-2);
+  background:var(--surface); color:var(--ink); font-size:18px; cursor:pointer; display:grid; place-items:center}
+.navbtn:disabled{opacity:.3; cursor:default}
+.navbtn:not(:disabled):active{background:var(--surface-2)}
+.dow{display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:4px}
+.dow span{text-align:center; font-size:11px; font-weight:500; color:var(--ink-2); padding:4px 0}
+.dow span.s{color:var(--sun-red)} .dow span.t{color:var(--sat)}
+.grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px}
+.day{aspect-ratio:1/1; position:relative}
+.day .cell{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; border-radius:13px; gap:3px}
+.day .num{font-family:var(--num); font-weight:600; font-size:15.5px; color:var(--ink-3)}
+.day .dot{width:5px; height:5px; border-radius:50%; background:transparent}
+.day.muted .num{color:var(--ink-3); opacity:.45}
+.day.avail{cursor:pointer}
+.day.avail .num{color:var(--ink)}
+.day.avail .dot{background:var(--sun-2)}
+.day.avail .cell{background:var(--accent-soft)}
+.day.avail:active .cell{transform:scale(.93)}
+.day.full .num{color:var(--ink-3)}
+.day.full .cell{background:var(--surface-2)}
+.day.full .tag{position:absolute; bottom:3px; font-size:8px; color:var(--danger); font-weight:700; letter-spacing:.02em}
+.day.today .cell{box-shadow:inset 0 0 0 1.5px var(--line-2)}
+.day.selected .num{color:#fff; font-weight:700}
+.day.selected .dot{background:rgba(255,255,255,.85)}
+.day.selected .cell{
+  background:radial-gradient(circle at 50% 38%, var(--sun-3), var(--sun-1) 92%);
+  box-shadow:0 7px 18px rgba(255,122,69,.5); transform:scale(1.02)}
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin-top:14px; font-size:11.5px; color:var(--ink-2)}
+.legend i{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:-1px}
+.legend .l-open i{background:var(--sun-2)} .legend .l-full i{background:var(--line-2)}
+.legend .l-sel i{background:var(--sun-1)}
+
+/* ---- クラスパネル ---- */
+.panel-empty{display:flex; gap:11px; align-items:center; color:var(--ink-2); font-size:13px;
+  padding:8px 2px}
+.panel-empty .ic{width:34px; height:34px; flex:none}
+.dayhead{display:flex; align-items:baseline; gap:8px; margin-bottom:4px}
+.dayhead .d{font-family:var(--num); font-weight:700; font-size:18px}
+.dayhead .w{font-size:13px; color:var(--ink-2)}
+.classcard{display:flex; align-items:center; gap:12px; border:1px solid var(--line);
+  border-radius:var(--r-sm); padding:12px 13px; margin-top:10px; background:var(--surface);
+  transition:border-color .2s, box-shadow .2s; cursor:pointer}
+.classcard:active{box-shadow:var(--shadow-sm)}
+.classcard.isfull{opacity:.62; cursor:default}
+.classcard .time{font-family:var(--num); font-weight:700; font-size:14px; min-width:44px;
+  color:var(--accent-deep); text-align:center; line-height:1.25}
+.classcard .time small{display:block; font-family:var(--font); font-weight:500; font-size:10px; color:var(--ink-3)}
+.classcard .body{flex:1; min-width:0}
+.classcard .nm{font-weight:700; font-size:15px; letter-spacing:.01em}
+.classcard .meta{font-size:12px; color:var(--ink-2); margin-top:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.classcard .right{flex:none; text-align:right}
+.seat{font-size:11px; color:var(--ink-2); font-family:var(--num); font-weight:600}
+.seat b{color:var(--ok); font-size:15px}
+.seat.few b{color:var(--warn)}
+.fullbadge{font-size:11px; font-weight:700; color:var(--danger);
+  background:#fdeceb; padding:3px 8px; border-radius:999px}
+.chev{color:var(--accent); font-size:16px; margin-left:2px}
+
+/* ---- フォーム ---- */
+.summary{display:flex; gap:12px; align-items:center; background:var(--accent-soft);
+  border:1px solid #ffe2d4; border-radius:var(--r-sm); padding:12px 14px}
+.summary .sun{width:30px; height:30px; flex:none}
+.summary .txt{flex:1; min-width:0}
+.summary .l1{font-weight:700; font-size:15px}
+.summary .l2{font-size:12.5px; color:var(--accent-deep); margin-top:1px}
+.field{margin-top:15px}
+.field label{display:block; font-size:13px; font-weight:500; margin-bottom:6px}
+.field label .req{color:var(--danger); font-size:11px; margin-left:5px; font-weight:700}
+.field label .opt{color:var(--ink-3); font-size:11px; margin-left:5px}
+.field input,.field textarea,.field select{
+  width:100%; border:1px solid var(--line-2); border-radius:11px; padding:12px 13px;
+  font-family:var(--font); font-size:15px; color:var(--ink); background:var(--surface);
+  -webkit-appearance:none; outline:none; transition:border-color .15s, box-shadow .15s}
+.field input:focus,.field textarea:focus,.field select:focus{
+  border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,122,69,.16)}
+.field textarea{resize:vertical; min-height:74px}
+.hint{font-size:11.5px; color:var(--ink-3); margin-top:5px}
+.formnote{font-size:12.5px; color:var(--ink-2); background:var(--surface-2);
+  border-radius:11px; padding:11px 13px; line-height:1.65}
+
+/* ---- ボタン ---- */
+.btn{width:100%; border:none; border-radius:14px; padding:15px; font-family:var(--font);
+  font-size:16px; font-weight:700; cursor:pointer; letter-spacing:.02em; transition:transform .1s, opacity .2s}
+.btn:active{transform:scale(.985)}
+.btn-primary{background:var(--sunrise); color:#fff; box-shadow:0 8px 20px rgba(255,122,69,.36)}
+.btn-primary:disabled{opacity:.5; box-shadow:none; cursor:default}
+.btn-ghost{background:var(--surface); color:var(--ink); border:1px solid var(--line-2); box-shadow:none}
+.btn-row{display:flex; gap:10px; margin-top:18px}
+.btn-row .btn{flex:1}
+.backbtn{display:inline-flex; align-items:center; gap:6px; background:none; border:none;
+  color:var(--ink-2); font-family:var(--font); font-size:14px; cursor:pointer; padding:8px 2px; margin-top:4px}
+
+/* ---- 確認シート ---- */
+.sheet-mask{position:fixed; inset:0; background:rgba(29,27,36,.45); z-index:80; display:none;
+  align-items:flex-end; justify-content:center}
+.sheet-mask.open{display:flex; animation:fade .2s ease}
+@keyframes fade{from{opacity:0} to{opacity:1}}
+.sheet{width:100%; max-width:480px; background:var(--surface);
+  border-radius:22px 22px 0 0; padding:8px 18px calc(20px + env(safe-area-inset-bottom));
+  animation:slideup .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slideup{from{transform:translateY(100%)} to{transform:none}}
+.sheet .grip{width:38px; height:4px; border-radius:4px; background:var(--line-2); margin:8px auto 14px}
+.sheet h3{font-size:17px; margin:0 0 4px}
+.confirm-rows{margin:14px 0 2px}
+.crow{display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:none}
+.crow .k{width:72px; flex:none; font-size:13px; color:var(--ink-2)}
+.crow .v{flex:1; font-size:14px; font-weight:500}
+
+/* ---- 完了 ---- */
+.done-hero{text-align:center; padding:18px 0 6px}
+.done-sun{width:120px; height:74px; margin:0 auto 6px}
+.done-hero h2{font-size:22px; margin:8px 0 4px}
+.done-hero p{color:var(--ink-2); font-size:13.5px; margin:0}
+.done-card{margin-top:18px}
+
+/* ---- 予約一覧 ---- */
+.bk{display:flex; gap:12px; align-items:center; border:1px solid var(--line);
+  border-radius:var(--r-sm); padding:12px 13px; margin-top:10px}
+.bk .when{font-family:var(--num); font-weight:700; text-align:center; min-width:50px; line-height:1.2}
+.bk .when .md{font-size:16px} .bk .when .w{font-size:10px; color:var(--ink-2); font-family:var(--font)}
+.bk .info{flex:1; min-width:0}
+.bk .info .nm{font-weight:600; font-size:14px}
+.bk .info .tm{font-size:12px; color:var(--ink-2)}
+.st{font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; white-space:nowrap}
+.st.pending{background:#fff3e2; color:var(--warn)}
+.st.confirmed{background:#e7f6ee; color:var(--ok)}
+.st.cancelled{background:var(--surface-2); color:var(--ink-3)}
+.st.done{background:#eef0f6; color:#5b6275}
+.cancel-link{background:none; border:none; color:var(--danger); font-size:12px;
+  font-family:var(--font); cursor:pointer; padding:4px 0; margin-top:2px}
+
+/* ---- 状態表示 ---- */
+.center-state{min-height:60vh; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; text-align:center; padding:30px; gap:14px}
+.center-state .icon{width:64px; height:64px}
+.center-state h2{font-size:18px; margin:0}
+.center-state p{color:var(--ink-2); font-size:13.5px; margin:0; max-width:300px}
+.spinner{width:30px; height:30px; border:3px solid var(--line-2); border-top-color:var(--accent);
+  border-radius:50%; animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-mini{display:inline-flex; align-items:center; gap:6px; height:18px}
+.btn-mini .spinner{width:16px; height:16px; border-width:2.5px; border-top-color:#fff; border-color:rgba(255,255,255,.4)}
+
+.toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom));
+  transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff;
+  padding:12px 18px; border-radius:999px; font-size:13.5px; z-index:120; opacity:0;
+  transition:opacity .25s, transform .25s; pointer-events:none; max-width:88%}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--danger)}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms !important; transition-duration:.001ms !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== ヘッダー ===== -->
+  <header class="appbar">
+    <div class="brandline">
+      <svg class="sunmark" viewBox="0 0 40 40" aria-hidden="true">
+        <defs><linearGradient id="sm" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0" stop-color="#ff6a45"/><stop offset=".55" stop-color="#ff9233"/><stop offset="1" stop-color="#ffc23c"/>
+        </linearGradient></defs>
+        <circle cx="20" cy="22" r="9" fill="url(#sm)"/>
+        <g stroke="url(#sm)" stroke-width="2.4" stroke-linecap="round">
+          <line x1="20" y1="3" x2="20" y2="9"/><line x1="6" y1="22" x2="1.5" y2="22"/>
+          <line x1="38.5" y1="22" x2="34" y2="22"/><line x1="9" y1="11" x2="6" y2="8"/>
+          <line x1="31" y1="11" x2="34" y2="8"/>
+        </g>
+      </svg>
+      <div class="brand-txt"><b>体験レッスン予約</b><span>SoL Dance School</span></div>
+    </div>
+    <button class="toplink" id="myBookingsBtn" style="display:none">予約を確認</button>
+    <div class="underline"></div>
+  </header>
+
+  <!-- ===== 読み込み中 ===== -->
+  <div id="view-loading" class="view active">
+    <div class="center-state"><div class="spinner"></div><p>受付状況を確認しています…</p></div>
+  </div>
+
+  <!-- ===== 受付停止中 ===== -->
+  <div id="view-closed" class="view">
+    <div class="center-state">
+      <svg class="icon" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="36" r="14" fill="none" stroke="#dcd8ce" stroke-width="3"/>
+        <line x1="22" y1="46" x2="42" y2="26" stroke="#dcd8ce" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <h2>ただいま受付を休止中です</h2>
+      <p id="closedMsg">現在、体験レッスンの受付は行っておりません。再開までお待ちください。</p>
+    </div>
+  </div>
+
+  <!-- ===== ① 日時・クラス選択 ===== -->
+  <div id="view-select" class="view">
+    <div class="steps">
+      <div class="step on" data-step="1"><span class="n">1</span><span class="lab">日時を選ぶ</span></div>
+      <span class="bar"></span>
+      <div class="step" data-step="2"><span class="n">2</span><span class="lab">情報を入力</span></div>
+      <span class="bar"></span>
+      <div class="step" data-step="3"><span class="n">3</span><span class="lab">完了</span></div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">Step 1</div>
+      <div class="h-lead">体験したい日を選ぶ</div>
+      <div class="sub">カレンダーの色がついた日が予約できる日です。</div>
+
+      <div style="margin-top:16px">
+        <div class="calhead">
+          <button class="navbtn" id="prevM" aria-label="前の月">‹</button>
+          <div class="ym" id="ymLabel">—</div>
+          <button class="navbtn" id="nextM" aria-label="次の月">›</button>
+        </div>
+        <div class="dow">
+          <span class="s">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="t">土</span>
+        </div>
+        <div class="grid" id="calGrid"></div>
+        <div class="legend">
+          <span class="l-open"><i></i>予約できる日</span>
+          <span class="l-full"><i></i>満席</span>
+          <span class="l-sel"><i></i>選択中</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="classPanel">
+      <div class="eyebrow">Step 1</div>
+      <div class="h-lead">クラスを選ぶ</div>
+      <div id="classArea">
+        <div class="panel-empty">
+          <svg class="ic" viewBox="0 0 40 40" aria-hidden="true">
+            <rect x="6" y="9" width="28" height="25" rx="4" fill="none" stroke="#dcd8ce" stroke-width="2.2"/>
+            <line x1="6" y1="16" x2="34" y2="16" stroke="#dcd8ce" stroke-width="2.2"/>
+            <circle cx="20" cy="25" r="3.4" fill="#ffc23c"/>
+          </svg>
+          <span>日付を選ぶと、その日に体験できるクラスが表示されます。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ② 入力フォーム ===== -->
+  <div id="view-form" class="view">
+    <div class="steps">
+      <div class="step" data-step="1"><span class="n">1</span><span class="lab">日時を選ぶ</span></div>
+      <span class="bar"></span>
+      <div class="step on" data-step="2"><span class="n">2</span><span class="lab">情報を入力</span></div>
+      <span class="bar"></span>
+      <div class="step" data-step="3"><span class="n">3</span><span class="lab">完了</span></div>
+    </div>
+
+    <button class="backbtn" id="formBack">‹ 日時の選択に戻る</button>
+
+    <div class="card">
+      <div class="summary">
+        <svg class="sun" viewBox="0 0 40 40" aria-hidden="true">
+          <defs><linearGradient id="s2" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#ff6a45"/><stop offset="1" stop-color="#ffc23c"/></linearGradient></defs>
+          <path d="M3 30 H37" stroke="url(#s2)" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M9 30 a11 11 0 0 1 22 0" fill="url(#s2)"/>
+        </svg>
+        <div class="txt">
+          <div class="l1" id="sumDate">—</div>
+          <div class="l2" id="sumClass">—</div>
+        </div>
+      </div>
+
+      <div id="formNoteBox" class="formnote" style="display:none; margin-top:14px"></div>
+
+      <div class="field">
+        <label>お名前 <span class="req">必須</span></label>
+        <input id="fName" type="text" inputmode="text" placeholder="山田 花子" autocomplete="name">
+      </div>
+      <div class="field">
+        <label>フリガナ <span class="opt">任意</span></label>
+        <input id="fKana" type="text" placeholder="ヤマダ ハナコ">
+      </div>
+      <div class="field">
+        <label>年齢・学年 <span class="opt">任意</span></label>
+        <input id="fAge" type="text" placeholder="例）小学3年 / 25歳">
+        <div class="hint">クラス分けの参考にします。</div>
+      </div>
+      <div class="field">
+        <label>電話番号 <span class="req">必須</span></label>
+        <input id="fPhone" type="tel" inputmode="tel" placeholder="090-1234-5678" autocomplete="tel">
+      </div>
+      <div class="field">
+        <label>ダンス経験 <span class="opt">任意</span></label>
+        <select id="fExp">
+          <option value="">選択してください</option>
+          <option value="初めて">初めて</option>
+          <option value="少し経験あり">少し経験あり</option>
+          <option value="経験者">経験者</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>ご質問・ご要望 <span class="opt">任意</span></label>
+        <textarea id="fNote" placeholder="気になることがあればご記入ください。"></textarea>
+      </div>
+
+      <button class="btn btn-primary" id="toConfirm" style="margin-top:20px">予約内容を確認</button>
+    </div>
+  </div>
+
+  <!-- ===== ③ 完了 ===== -->
+  <div id="view-done" class="view">
+    <div class="steps">
+      <div class="step" data-step="1"><span class="n">1</span><span class="lab">日時を選ぶ</span></div>
+      <span class="bar"></span>
+      <div class="step" data-step="2"><span class="n">2</span><span class="lab">情報を入力</span></div>
+      <span class="bar"></span>
+      <div class="step on" data-step="3"><span class="n">3</span><span class="lab">完了</span></div>
+    </div>
+    <div class="done-hero">
+      <svg class="done-sun" viewBox="0 0 120 74" aria-hidden="true">
+        <defs><linearGradient id="ds" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stop-color="#ff6a45"/><stop offset="1" stop-color="#ffc23c"/></linearGradient></defs>
+        <g stroke="#ffc23c" stroke-width="2.6" stroke-linecap="round" opacity=".9">
+          <line x1="60" y1="6" x2="60" y2="16"/><line x1="24" y1="20" x2="31" y2="27"/>
+          <line x1="96" y1="20" x2="89" y2="27"/><line x1="10" y1="46" x2="20" y2="46"/><line x1="110" y1="46" x2="100" y2="46"/>
+        </g>
+        <path d="M37 52 a23 23 0 0 1 46 0 Z" fill="url(#ds)"/>
+        <path d="M6 53 H114" stroke="url(#ds)" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <h2>予約を受け付けました</h2>
+      <p>確認のメッセージをLINEにもお送りします。当日お会いできるのを楽しみにしています。</p>
+    </div>
+    <div class="card done-card">
+      <div class="confirm-rows" id="doneRows"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="doneClose">閉じる</button>
+      <button class="btn btn-primary" id="doneMine">予約内容を見る</button>
+    </div>
+  </div>
+
+  <!-- ===== 予約一覧 ===== -->
+  <div id="view-bookings" class="view">
+    <button class="backbtn" id="bkBack">‹ 戻る</button>
+    <div class="card">
+      <div class="eyebrow">My Reservations</div>
+      <div class="h-lead">あなたの予約</div>
+      <div id="bkList" style="margin-top:6px"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== 確認シート ===== -->
+<div class="sheet-mask" id="confirmSheet">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h3>この内容で予約します</h3>
+    <div class="sub">送信前にご確認ください。</div>
+    <div class="confirm-rows" id="confirmRows"></div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="confirmCancel">戻る</button>
+      <button class="btn btn-primary" id="confirmSubmit">この内容で予約する</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+/* ============================================================
+   設定：デプロイ後にここを書き換えてください
+   ============================================================ */
+const API_URL = 'PASTE_YOUR_GAS_WEBAPP_URL_HERE';   // GASウェブアプリのURL
+const LIFF_ID = 'PASTE_YOUR_LIFF_ID_HERE';          // LINE LIFF ID
+/* ============================================================ */
+
+const WD = ['日','月','火','水','木','金','土'];
+const state = {
+  cfg: null,
+  profile: { userId:'', displayName:'' },
+  viewMonth: '',          // 'YYYY-MM'
+  selectedDate: '',
+  selectedClass: null,
+  classCache: {},         // date -> classes[]
+  submitting: false
+};
+
+/* ---------- 通信 ---------- */
+async function apiGet(params){
+  const u = new URL(API_URL);
+  Object.keys(params).forEach(k=>u.searchParams.set(k, params[k]));
+  const r = await fetch(u.toString(), { method:'GET' });
+  return r.json();
+}
+async function apiPost(body){
+  const r = await fetch(API_URL, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // GASでpreflight回避
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+/* ---------- 画面切替 ---------- */
+function show(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+function toast(msg, err){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show' + (err?' err':'');
+  setTimeout(()=>{ t.className = 'toast'; }, 3000);
+}
+
+/* ---------- 日付ユーティリティ ---------- */
+function ymOf(ymd){ return ymd.slice(0,7); }
+function todayYm(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+function daysInMonth(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m,0).getDate(); }
+function firstDow(ym){ const [y,m]=ym.split('-').map(Number); return new Date(y,m-1,1).getDay(); }
+function wdOfYmd(ymd){ const [y,m,d]=ymd.split('-').map(Number); return new Date(Date.UTC(y,m-1,d)).getUTCDay(); }
+function jpDate(ymd){ const [y,m,d]=ymd.split('-').map(Number); return `${y}年${m}月${d}日`; }
+function mdLabel(ymd){ const [,m,d]=ymd.split('-').map(Number); return `${m}/${d}`; }
+
+/* ---------- 起動 ---------- */
+async function boot(){
+  // LIFF（失敗してもフォーム自体は動作させる）
+  try{
+    if (LIFF_ID && !LIFF_ID.startsWith('PASTE')){
+      await liff.init({ liffId: LIFF_ID });
+      if (liff.isLoggedIn()){
+        const p = await liff.getProfile();
+        state.profile.userId = p.userId || '';
+        state.profile.displayName = p.displayName || '';
+      }
+    }
+  }catch(e){ /* LINE外などでは無視 */ }
+
+  try{
+    const cfg = await apiGet({ api:'config' });
+    state.cfg = cfg;
+    if (!cfg.ok || !cfg.open){
+      document.getElementById('closedMsg').textContent = cfg.closedMessage || '現在、体験レッスンの受付は行っておりません。';
+      show('view-closed');
+      return;
+    }
+    // フォーム案内文
+    if (cfg.formNote){
+      const b = document.getElementById('formNoteBox');
+      b.textContent = cfg.formNote; b.style.display='block';
+    }
+    if (state.profile.userId){
+      document.getElementById('myBookingsBtn').style.display='block';
+    }
+    state.viewMonth = ymOf(cfg.rangeStart) >= todayYm() ? ymOf(cfg.rangeStart) : todayYm();
+    show('view-select');
+    await renderCalendar();
+  }catch(e){
+    document.getElementById('closedMsg').textContent = '接続に問題が発生しました。電波の良い場所で再度お試しください。';
+    show('view-closed');
+  }
+}
+
+/* ---------- カレンダー ---------- */
+function monthBounds(){
+  return { min: ymOf(state.cfg.rangeStart), max: ymOf(state.cfg.rangeEnd) };
+}
+async function renderCalendar(){
+  const ym = state.viewMonth;
+  const [y,m] = ym.split('-').map(Number);
+  document.getElementById('ymLabel').innerHTML = `${y}<small>年</small>${m}<small>月</small>`;
+
+  const b = monthBounds();
+  document.getElementById('prevM').disabled = (ym <= b.min);
+  document.getElementById('nextM').disabled = (ym >= b.max);
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:24px"><div class="spinner" style="margin:0 auto"></div></div>';
+
+  let res;
+  try{ res = await apiGet({ api:'availableDates', month: ym }); }
+  catch(e){ grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--ink-2);padding:20px">読み込みに失敗しました</div>'; return; }
+
+  const map = {};
+  (res.dates||[]).forEach(d=>{ map[d.date] = d; });
+  const today = res.today || '';
+
+  grid.innerHTML = '';
+  const lead = firstDow(ym);
+  for (let i=0;i<lead;i++){ const e=document.createElement('div'); e.className='day'; grid.appendChild(e); }
+
+  const dim = daysInMonth(ym);
+  for (let day=1; day<=dim; day++){
+    const ymd = `${ym}-${String(day).padStart(2,'0')}`;
+    const info = map[ymd];
+    const cell = document.createElement('div');
+    cell.className = 'day';
+    let inner = `<div class="cell"><span class="num">${day}</span><span class="dot"></span></div>`;
+
+    if (!info){                       // 受付対象外
+      cell.classList.add('muted');
+    } else if (info.available){
+      cell.classList.add('avail');
+      cell.onclick = ()=>selectDate(ymd);
+    } else if (info.allFull){
+      cell.classList.add('full');
+      inner = `<div class="cell"><span class="num">${day}</span><span class="tag">満</span></div>`;
+    } else {
+      cell.classList.add('muted');
+    }
+    if (ymd === today) cell.classList.add('today');
+    if (ymd === state.selectedDate) cell.classList.add('selected');
+    cell.innerHTML = inner;
+    grid.appendChild(cell);
+  }
+}
+
+document.getElementById('prevM').onclick = ()=>{
+  const [y,m]=state.viewMonth.split('-').map(Number);
+  const d=new Date(y,m-2,1); state.viewMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  renderCalendar();
+};
+document.getElementById('nextM').onclick = ()=>{
+  const [y,m]=state.viewMonth.split('-').map(Number);
+  const d=new Date(y,m,1); state.viewMonth=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  renderCalendar();
+};
+
+/* ---------- 日付選択 → クラス表示 ---------- */
+async function selectDate(ymd){
+  state.selectedDate = ymd;
+  state.selectedClass = null;
+  // 選択状態の再描画（軽量）
+  document.querySelectorAll('.day.selected').forEach(e=>e.classList.remove('selected'));
+  [...document.querySelectorAll('.day.avail, .day.full')].forEach(e=>{
+    if (e.querySelector('.num') && Number(e.querySelector('.num').textContent) === Number(ymd.slice(-2))) e.classList.add('selected');
+  });
+
+  const area = document.getElementById('classArea');
+  area.innerHTML = `<div class="dayhead"><span class="d">${mdLabel(ymd)}</span><span class="w">（${WD[wdOfYmd(ymd)]}）</span></div>
+    <div style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div></div>`;
+  document.getElementById('classPanel').scrollIntoView({ behavior:'smooth', block:'nearest' });
+
+  let res;
+  try{ res = await apiGet({ api:'classesForDate', date: ymd }); }
+  catch(e){ area.innerHTML = '<div class="panel-empty"><span>読み込みに失敗しました。もう一度お試しください。</span></div>'; return; }
+
+  state.classCache[ymd] = res.classes || [];
+  renderClasses(ymd, res.classes||[]);
+}
+
+function renderClasses(ymd, classes){
+  const area = document.getElementById('classArea');
+  let html = `<div class="dayhead"><span class="d">${mdLabel(ymd)}</span><span class="w">（${WD[wdOfYmd(ymd)]}）</span></div>`;
+  if (!classes.length){
+    html += '<div class="panel-empty"><span>この日に体験できるクラスはありません。別の日を選んでください。</span></div>';
+    area.innerHTML = html; return;
+  }
+  classes.forEach((c, i)=>{
+    const full = c.full;
+    const tm = c.start_time ? c.start_time.replace(/^0/,'') : '';
+    const meta = [c.instructor, c.location].filter(Boolean).join(' / ');
+    const right = full
+      ? '<span class="fullbadge">満席</span>'
+      : `<span class="seat ${c.remaining<=2?'few':''}">残 <b>${c.remaining}</b></span><span class="chev">›</span>`;
+    html += `<div class="classcard ${full?'isfull':''}" data-i="${i}">
+        <div class="time">${tm||'—'}<small>${c.end_time?'〜'+c.end_time.replace(/^0/,''):'開始'}</small></div>
+        <div class="body"><div class="nm">${escapeHtml(c.class_name)}</div>${meta?`<div class="meta">${escapeHtml(meta)}</div>`:''}</div>
+        <div class="right">${right}</div>
+      </div>`;
+  });
+  area.innerHTML = html;
+  area.querySelectorAll('.classcard').forEach(el=>{
+    const i = Number(el.dataset.i);
+    if (classes[i].full) return;
+    el.onclick = ()=>chooseClass(classes[i]);
+  });
+}
+
+/* ---------- クラス選択 → フォーム ---------- */
+function chooseClass(c){
+  state.selectedClass = c;
+  const d = state.selectedDate;
+  document.getElementById('sumDate').textContent = `${jpDate(d)}（${WD[wdOfYmd(d)]}）`;
+  const tm = c.start_time ? c.start_time + (c.end_time?'〜'+c.end_time:'') : '';
+  document.getElementById('sumClass').textContent = `${c.class_name}${tm?'  '+tm:''}`;
+  // LINE名をフリガナ補助には入れず、名前欄は空のまま（本名入力を促す）
+  setStep(2);
+  show('view-form');
+}
+
+/* ---------- 確認 → 送信 ---------- */
+document.getElementById('toConfirm').onclick = ()=>{
+  const name = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  if (!name){ toast('お名前を入力してください', true); document.getElementById('fName').focus(); return; }
+  if (!phone){ toast('電話番号を入力してください', true); document.getElementById('fPhone').focus(); return; }
+
+  const d = state.selectedDate, c = state.selectedClass;
+  const rows = [
+    ['日にち', `${jpDate(d)}（${WD[wdOfYmd(d)]}）`],
+    ['クラス', c.class_name + (c.start_time?`  ${c.start_time}${c.end_time?'〜'+c.end_time:''}`:'')],
+    ['お名前', name],
+    ['電話', phone]
+  ];
+  const age = document.getElementById('fAge').value.trim();
+  const exp = document.getElementById('fExp').value;
+  if (age) rows.push(['年齢・学年', age]);
+  if (exp) rows.push(['ダンス経験', exp]);
+  document.getElementById('confirmRows').innerHTML =
+    rows.map(r=>`<div class="crow"><span class="k">${r[0]}</span><span class="v">${escapeHtml(r[1])}</span></div>`).join('');
+  document.getElementById('confirmSheet').classList.add('open');
+};
+document.getElementById('confirmCancel').onclick = closeSheet;
+document.getElementById('confirmSheet').onclick = (e)=>{ if (e.target.id==='confirmSheet') closeSheet(); };
+function closeSheet(){ document.getElementById('confirmSheet').classList.remove('open'); }
+
+document.getElementById('confirmSubmit').onclick = async ()=>{
+  if (state.submitting) return;
+  state.submitting = true;
+  const btn = document.getElementById('confirmSubmit');
+  const orig = btn.textContent;
+  btn.disabled = true; btn.innerHTML = '<span class="btn-mini"><span class="spinner"></span> 送信中…</span>';
+
+  const payload = {
+    action:'createBooking',
+    date: state.selectedDate,
+    classId: state.selectedClass.class_id,
+    name: document.getElementById('fName').value.trim(),
+    kana: document.getElementById('fKana').value.trim(),
+    age: document.getElementById('fAge').value.trim(),
+    phone: document.getElementById('fPhone').value.trim(),
+    experience: document.getElementById('fExp').value,
+    note: document.getElementById('fNote').value.trim(),
+    lineUserId: state.profile.userId,
+    lineDisplayName: state.profile.displayName
+  };
+
+  let res;
+  try{ res = await apiPost(payload); }
+  catch(e){ res = { ok:false, error:'network' }; }
+
+  state.submitting = false;
+  btn.disabled = false; btn.textContent = orig;
+
+  if (res.ok){
+    closeSheet();
+    renderDone(res.booking, payload);
+    setStep(3);
+    show('view-done');
+  } else {
+    closeSheet();
+    toast(errMsg(res.error), true);
+    if (res.error==='full' || res.error==='already_booked'){
+      // 残席/重複は選択画面に戻して最新化
+      setStep(1); show('view-select'); selectDate(state.selectedDate);
+    }
+  }
+};
+
+function renderDone(booking, payload){
+  const d = booking.date;
+  const rows = [
+    ['日にち', `${jpDate(d)}（${booking.weekday}）`],
+    ['クラス', booking.class_name + (booking.start_time?`  ${booking.start_time}${booking.end_time?'〜'+booking.end_time:''}`:'')],
+    ['お名前', payload.name],
+    ['電話', payload.phone]
+  ];
+  if (booking.location) rows.splice(2,0,['場所', booking.location]);
+  document.getElementById('doneRows').innerHTML =
+    rows.map(r=>`<div class="crow"><span class="k">${r[0]}</span><span class="v">${escapeHtml(r[1])}</span></div>`).join('');
+}
+
+/* ---------- 予約一覧 ---------- */
+async function loadMyBookings(){
+  const list = document.getElementById('bkList');
+  list.innerHTML = '<div style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div></div>';
+  show('view-bookings');
+  let res;
+  try{ res = await apiGet({ api:'myBookings', lineUserId: state.profile.userId }); }
+  catch(e){ list.innerHTML = '<p class="sub">読み込みに失敗しました。</p>'; return; }
+  if (!res.bookings || !res.bookings.length){
+    list.innerHTML = '<div class="panel-empty" style="padding:18px 2px"><span>まだ予約はありません。</span></div>'; return;
+  }
+  list.innerHTML = res.bookings.map(b=>{
+    const stLabel = { pending:'受付済', confirmed:'確定', cancelled:'取消', done:'完了' }[b.status] || b.status;
+    const cancelable = (b.status==='pending' || b.status==='confirmed');
+    return `<div class="bk">
+      <div class="when"><div class="md">${mdLabel(b.date)}</div><div class="w">${b.weekday}</div></div>
+      <div class="info">
+        <div class="nm">${escapeHtml(b.class_name)}</div>
+        <div class="tm">${b.start_time||''}</div>
+        ${cancelable?`<button class="cancel-link" data-id="${b.booking_id}">予約を取り消す</button>`:''}
+      </div>
+      <span class="st ${b.status}">${stLabel}</span>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.cancel-link').forEach(btn=>{
+    btn.onclick = ()=>cancelBooking(btn.dataset.id);
+  });
+}
+async function cancelBooking(id){
+  if (!confirm('この予約を取り消しますか？')) return;
+  let res;
+  try{ res = await apiPost({ action:'cancelBooking', bookingId:id, lineUserId: state.profile.userId }); }
+  catch(e){ res = { ok:false }; }
+  if (res.ok){ toast('予約を取り消しました'); loadMyBookings(); }
+  else { toast('取り消しに失敗しました', true); }
+}
+
+/* ---------- ナビ ---------- */
+document.getElementById('formBack').onclick = ()=>{ setStep(1); show('view-select'); };
+document.getElementById('bkBack').onclick = ()=>{ setStep(1); show('view-select'); };
+document.getElementById('myBookingsBtn').onclick = loadMyBookings;
+document.getElementById('doneMine').onclick = loadMyBookings;
+document.getElementById('doneClose').onclick = ()=>{
+  resetForm(); state.selectedDate=''; state.selectedClass=null;
+  setStep(1); show('view-select'); renderCalendar();
+  document.getElementById('classArea').innerHTML =
+    '<div class="panel-empty"><span>日付を選ぶと、その日に体験できるクラスが表示されます。</span></div>';
+};
+function resetForm(){
+  ['fName','fKana','fAge','fPhone','fNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fExp').value='';
+}
+function setStep(n){
+  document.querySelectorAll('.steps').forEach(bar=>{
+    bar.querySelectorAll('.step').forEach(s=>{
+      s.classList.toggle('on', Number(s.dataset.step) === n);
+    });
+  });
+}
+
+/* ---------- 小物 ---------- */
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function errMsg(code){
+  return ({
+    full:'申し訳ありません。この枠は満席になりました。',
+    already_booked:'この日のこのクラスは、すでに予約済みです。',
+    date_unavailable:'選択した日は予約できなくなりました。別の日を選んでください。',
+    class_unavailable:'このクラスは予約できなくなりました。',
+    network:'通信に失敗しました。電波の良い場所で再度お試しください。'
+  })[code] || '予約に失敗しました。時間をおいて再度お試しください。';
+}
+
+boot();
+</script>
+</body>
+</html>
