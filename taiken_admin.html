@@ -155,6 +155,52 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
   color:var(--ink-2); cursor:pointer}
 .modeseg button.on{background:var(--sunrise); color:#fff}
 
+/* ---- 日単位停止カレンダー ---- */
+.adcal{border:1px solid var(--line); border-radius:var(--r-sm); padding:12px; background:var(--surface-3)}
+.adcal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+.adcal-ym{font-family:var(--num); font-weight:700; font-size:17px; letter-spacing:.01em}
+.cal-nav{width:36px; height:36px; border-radius:10px; border:1px solid var(--line-2);
+  background:var(--surface); color:var(--ink); font-size:18px; cursor:pointer; display:grid; place-items:center}
+.cal-nav:disabled{opacity:.35; cursor:default}
+.adcal-dow{display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:3px}
+.adcal-dow span{text-align:center; font-size:11px; font-weight:600; color:var(--ink-2); padding:3px 0}
+.adcal-dow span.s{color:var(--sun-red,#e0573f)} .adcal-dow span.t{color:var(--blue)}
+.adcal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}
+.adcal-day{aspect-ratio:1/1; border:1px solid transparent; border-radius:10px; background:var(--surface);
+  position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; transition:.12s; min-height:38px}
+.adcal-day .dn{font-family:var(--num); font-weight:600; font-size:14px; color:var(--ink)}
+.adcal-day.empty{background:transparent; border:none; cursor:default}
+.adcal-day.muted{background:transparent; cursor:default}
+.adcal-day.muted .dn{color:var(--ink-3); opacity:.4}
+.adcal-day:not(.muted):not(.empty):hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,122,69,.12)}
+.adcal-day.sel{border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,122,69,.22)}
+.adcal-day.blk-all{background:var(--danger-soft)} .adcal-day.blk-all .dn{color:var(--danger)}
+.adcal-day.blk-some{background:var(--warn-soft)} .adcal-day.blk-some .dn{color:#b9760f}
+.adcal-day .mk{position:absolute; bottom:4px; width:5px; height:5px; border-radius:50%}
+.adcal-day.blk-all .mk{background:var(--danger)} .adcal-day.blk-some .mk{background:var(--warn)}
+.adcal-legend{display:flex; gap:16px; margin-top:10px; font-size:11.5px; color:var(--ink-2)}
+.adcal-legend span{display:flex; align-items:center; gap:5px}
+.adcal-legend i{width:11px; height:11px; border-radius:4px; display:inline-block}
+.adcal-legend .lg-all{background:var(--danger-soft); border:1px solid #f0b6af}
+.adcal-legend .lg-some{background:var(--warn-soft); border:1px solid #ecd09a}
+
+.adeditor{margin-top:14px; border:1px solid #ffe2d4; border-radius:var(--r-sm); padding:14px; background:var(--accent-soft);
+  animation:fade .2s ease}
+.adeditor .ae-date{font-family:var(--num); font-weight:700; font-size:16px; color:var(--ink); margin-bottom:2px}
+.adeditor .ae-date .wd{font-size:12px; color:var(--ink-2); margin-left:4px; font-family:var(--font)}
+.adeditor .ae-sub{font-size:12px; color:var(--ink-2); margin-bottom:12px}
+.ae-choices{display:flex; flex-direction:column; gap:8px; margin-bottom:12px}
+.ae-choice{display:flex; align-items:center; gap:10px; padding:11px 12px; border:1px solid var(--line-2);
+  border-radius:11px; background:var(--surface); cursor:pointer; font-size:14px; font-weight:600}
+.ae-choice input{width:18px; height:18px; accent-color:var(--accent); flex:none}
+.ae-choice.on{border-color:var(--accent); box-shadow:0 0 0 2px rgba(255,122,69,.16)}
+.ae-choice .cap{font-weight:400; color:var(--ink-3); font-size:12px; margin-left:auto}
+.ae-classlist{margin:0 0 12px; padding:11px 12px; border:1px dashed var(--line-2); border-radius:11px; background:var(--surface)}
+.ae-classlist .lbl{font-size:11.5px; color:var(--ink-2); font-weight:600; margin-bottom:8px}
+.ae-actions{display:flex; gap:9px}
+.ae-actions .btn{flex:1}
+
 /* ---- 予約一覧 ---- */
 .filterbar{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:4px}
 .filterbar .field{margin-bottom:0; flex:0 1 150px}
@@ -337,6 +383,26 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
   <!-- ---- 03 不可期間 ---- -->
   <div class="panel" id="panel-blocked">
     <div class="card">
+      <span class="eyebrow">Stop by date</span>
+      <h2>日を選んで停止</h2>
+      <p class="desc">カレンダーで日付を選び、その日の体験受付を停止します。複数レッスンがある日は<b>レッスン単位</b>でも選べます。</p>
+      <div class="adcal">
+        <div class="adcal-head">
+          <button class="cal-nav" id="adPrev" onclick="adCalNav(-1)">‹</button>
+          <div class="adcal-ym" id="adYm">—</div>
+          <button class="cal-nav" id="adNext" onclick="adCalNav(1)">›</button>
+        </div>
+        <div class="adcal-dow"><span class="s">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="t">土</span></div>
+        <div class="adcal-grid" id="adGrid"></div>
+        <div class="adcal-legend">
+          <span><i class="lg-all"></i>全面停止</span>
+          <span><i class="lg-some"></i>一部レッスン停止</span>
+        </div>
+      </div>
+      <div id="adEditor" class="adeditor hide"></div>
+    </div>
+
+    <div class="card">
       <span class="eyebrow">Blocked weekdays</span>
       <h2>体験不可の曜日</h2>
       <p class="desc">毎週この曜日は体験不可にします（例：講師不在の曜日）。</p>
@@ -426,6 +492,8 @@ const state = {
   settings: null,   // サーバーから取得した設定（保存時にこれを送る）
   classes: [],      // adminGetSettings の classes
   newMode: 'block',
+  adMonth: '',      // 日単位停止カレンダーの表示月 'YYYY-MM'
+  adSelected: '',   // 選択中の日 'YYYY-MM-DD'
   busy: false
 };
 
@@ -510,6 +578,7 @@ function applySettings(res){
   s.classCapacity = s.classCapacity || {};
   s.blockedWeekdays = s.blockedWeekdays || [];
   s.blockedRanges = s.blockedRanges || [];
+  s.blockedDates = (s.blockedDates && typeof s.blockedDates==='object' && !Array.isArray(s.blockedDates)) ? s.blockedDates : {};
 
   renderReception();
   renderClasses();
@@ -582,6 +651,14 @@ function renderBlocked(){
   renderRanges();
   // 追加フォームのクラスチェック
   renderAllowedChecks(document.getElementById('newAllowedChecks'), []);
+
+  // 日単位停止カレンダー
+  if (!state.adMonth){
+    var t = todayLocalYmd();
+    var start = state.settings.reception && state.settings.reception.start;
+    state.adMonth = (start && start > t) ? start.slice(0,7) : t.slice(0,7);
+  }
+  renderAdminCalendar();
 }
 
 function renderRanges(){
@@ -677,6 +754,171 @@ function addRange(){
 function removeRange(i){
   state.settings.blockedRanges.splice(i, 1);
   renderRanges();
+}
+
+/* ---------- 日単位停止カレンダー ---------- */
+function todayLocalYmd(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function monthAdd(ym, delta){
+  let p = ym.split('-'), y = +p[0], m = +p[1] + delta;
+  while(m<1){ m+=12; y--; } while(m>12){ m-=12; y++; }
+  return y+'-'+String(m).padStart(2,'0');
+}
+function daysInMonth(ym){ const p=ym.split('-'); return new Date(+p[0], +p[1], 0).getDate(); }
+function firstWeekday(ym){ const p=ym.split('-'); return new Date(+p[0], +p[1]-1, 1).getDay(); }
+function wdCharOf(ymd){ const p=ymd.split('-'); return WD_ALL[new Date(+p[0], +p[1]-1, +p[2]).getDay()]; }
+function classMatchesWd(weekday, wdChar){
+  const w = String(weekday||'').trim();
+  if (!w) return true;               // 空欄=毎日
+  return w.indexOf(wdChar) >= 0;     // "月水金" などの複数指定にも対応
+}
+// その日に体験予約され得るクラス（active かつ 公開ON かつ 曜日一致）
+function candidatesForDate(ymd){
+  const wd = wdCharOf(ymd);
+  return state.classes.filter(c=>{
+    const inactive = String(c.active)==='false' || c.active===false;
+    if (inactive || !c.trialEnabled) return false;
+    return classMatchesWd(c.weekday, wd);
+  });
+}
+
+function renderAdminCalendar(){
+  const ym = state.adMonth;
+  const grid = document.getElementById('adGrid');
+  const today = todayLocalYmd();
+  const rec = state.settings.reception || {};
+  const recActive = !!rec.enabled && rec.start && rec.end;
+
+  const p = ym.split('-');
+  document.getElementById('adYm').textContent = p[0]+'年'+Number(p[1])+'月';
+
+  // ナビ範囲（受付期間があればその範囲に制限）
+  let minMonth, maxMonth;
+  if (recActive){
+    minMonth = (rec.start.slice(0,7) > today.slice(0,7)) ? rec.start.slice(0,7) : today.slice(0,7);
+    maxMonth = rec.end.slice(0,7);
+  } else {
+    minMonth = today.slice(0,7);
+    maxMonth = monthAdd(today.slice(0,7), 12);
+  }
+  document.getElementById('adPrev').disabled = (ym <= minMonth);
+  document.getElementById('adNext').disabled = (ym >= maxMonth);
+
+  const lead = firstWeekday(ym), total = daysInMonth(ym);
+  let html = '';
+  for (let i=0;i<lead;i++) html += '<div class="adcal-day empty"></div>';
+  for (let d=1; d<=total; d++){
+    const ymd = ym+'-'+String(d).padStart(2,'0');
+    const muted = (ymd < today) || (recActive && (ymd < rec.start || ymd > rec.end));
+    const bd = state.settings.blockedDates[ymd];
+    let cls = 'adcal-day';
+    if (muted) cls += ' muted';
+    if (state.adSelected === ymd) cls += ' sel';
+    let mk = '';
+    if (bd && bd.mode==='all'){ cls += ' blk-all'; mk = '<span class="mk"></span>'; }
+    else if (bd && bd.mode==='classes'){ cls += ' blk-some'; mk = '<span class="mk"></span>'; }
+    const oc = muted ? '' : ' onclick="openDateEditor(\''+ymd+'\')"';
+    html += '<div class="'+cls+'"'+oc+'><span class="dn">'+d+'</span>'+mk+'</div>';
+  }
+  grid.innerHTML = html;
+}
+
+function adCalNav(delta){
+  state.adMonth = monthAdd(state.adMonth, delta);
+  state.adSelected = '';
+  document.getElementById('adEditor').classList.add('hide');
+  renderAdminCalendar();
+}
+
+function choiceRow(val, on, title, cap){
+  return '<label class="ae-choice'+(on?' on':'')+'">'+
+    '<input type="radio" name="aeMode" value="'+val+'" '+(on?'checked':'')+'>'+
+    '<span>'+title+'</span><span class="cap">'+cap+'</span></label>';
+}
+
+function openDateEditor(ymd){
+  state.adSelected = ymd;
+  renderAdminCalendar();
+  const ed = document.getElementById('adEditor');
+  const cands = candidatesForDate(ymd);
+  const bd = state.settings.blockedDates[ymd] || null;
+  const wd = wdCharOf(ymd);
+  const p = ymd.split('-');
+  const dateLabel = Number(p[1])+'月'+Number(p[2])+'日 <span class="wd">('+wd+')</span>';
+
+  if (cands.length === 0){
+    ed.innerHTML =
+      '<div class="ae-date">'+dateLabel+'</div>'+
+      '<div class="ae-sub">この曜日に公開中のクラスがないため、停止できる体験はありません。</div>'+
+      '<div class="ae-actions"><button class="btn btn-ghost btn-sm" onclick="closeDateEditor()">閉じる</button></div>';
+    ed.classList.remove('hide');
+    return;
+  }
+
+  const curMode = bd ? bd.mode : 'open';   // open / all / classes
+  const selectedIds = (bd && bd.mode==='classes') ? bd.classIds.map(String) : [];
+  const single = cands.length === 1;       // 1レッスンなら「全面停止＝そのレッスン停止」
+
+  let choices = choiceRow('open', curMode==='open', '受け付ける', '通常どおり予約可');
+  choices += choiceRow('all', curMode==='all', single ? 'このレッスンを停止' : 'この日を全面停止', cands.length+'クラス');
+  if (!single) choices += choiceRow('classes', curMode==='classes', '一部のレッスンのみ停止', '選択分だけ停止');
+
+  let classList = '';
+  if (!single){
+    classList = '<div class="ae-classlist" id="aeClassList" style="'+(curMode==='classes'?'':'display:none')+'">'+
+      '<div class="lbl">停止するレッスンを選択</div><div class="checks">'+
+      cands.map(c=>{
+        const checked = selectedIds.indexOf(String(c.class_id))>=0;
+        return '<label class="check"><input type="checkbox" value="'+esc(c.class_id)+'" '+(checked?'checked':'')+'>'+
+          '<span>'+esc(c.start_time||'')+'　'+esc(c.class_name||c.class_id)+
+          (c.instructor?'<span style="color:var(--ink-3);font-size:11px"> ／ '+esc(c.instructor)+'</span>':'')+'</span></label>';
+      }).join('')+'</div></div>';
+  }
+
+  ed.innerHTML =
+    '<div class="ae-date">'+dateLabel+'</div>'+
+    '<div class="ae-sub">この日の体験受付を停止できます。'+(single?'':'複数レッスンがある日はレッスン単位でも選べます。')+'</div>'+
+    '<div class="ae-choices">'+choices+'</div>'+ classList +
+    '<div class="ae-actions">'+
+      '<button class="btn btn-ghost btn-sm" onclick="closeDateEditor()">キャンセル</button>'+
+      '<button class="btn btn-primary btn-sm" onclick="applyDateEditor(\''+ymd+'\')">この日に適用</button>'+
+    '</div>';
+  ed.classList.remove('hide');
+
+  ed.querySelectorAll('input[name="aeMode"]').forEach(r=>{
+    r.addEventListener('change', ()=>{
+      ed.querySelectorAll('.ae-choice').forEach(ch=> ch.classList.toggle('on', ch.querySelector('input').checked));
+      const list = document.getElementById('aeClassList');
+      if (list){
+        const ck = document.querySelector('input[name=aeMode]:checked');
+        list.style.display = (ck && ck.value==='classes') ? '' : 'none';
+      }
+    });
+  });
+}
+
+function closeDateEditor(){
+  state.adSelected = '';
+  document.getElementById('adEditor').classList.add('hide');
+  renderAdminCalendar();
+}
+
+function applyDateEditor(ymd){
+  const ck = document.querySelector('input[name=aeMode]:checked');
+  const mode = ck ? ck.value : 'open';
+  if (mode === 'open'){
+    delete state.settings.blockedDates[ymd];
+  } else if (mode === 'all'){
+    state.settings.blockedDates[ymd] = { mode:'all' };
+  } else {
+    const ids = Array.from(document.querySelectorAll('#aeClassList input:checked')).map(cb=>cb.value);
+    if (!ids.length){ toast('停止するレッスンを選択してください', 'err'); return; }
+    state.settings.blockedDates[ymd] = { mode:'classes', classIds: ids };
+  }
+  closeDateEditor();
+  toast('設定しました（「不可期間を保存」で確定）', 'ok');
 }
 
 /* ---------- 設定の保存（全タブ共通：現在の入力を集めて送信） ---------- */
