@@ -360,16 +360,16 @@ body{
 
       <div class="field">
         <label>お名前 <span class="req">必須</span></label>
-        <input id="fName" type="text" inputmode="text" placeholder="旭川 そる" autocomplete="name">
+        <input id="fName" type="text" inputmode="text" placeholder="山田 花子" autocomplete="name">
       </div>
       <div class="field">
         <label>フリガナ <span class="opt">任意</span></label>
-        <input id="fKana" type="text" placeholder="アサヒカワ ソル">
+        <input id="fKana" type="text" placeholder="ヤマダ ハナコ">
       </div>
       <div class="field">
         <label>年齢・学年 <span class="opt">任意</span></label>
-        <input id="fAge" type="text" placeholder="例）小学x年 / xx歳">
-        <div class="hint"体験者の年齢または学年を教えてください。</div>
+        <input id="fAge" type="text" placeholder="例）小学3年 / 25歳">
+        <div class="hint">クラス分けの参考にします。</div>
       </div>
       <div class="field">
         <label>電話番号 <span class="req">必須</span></label>
@@ -413,8 +413,8 @@ body{
         <path d="M37 52 a23 23 0 0 1 46 0 Z" fill="url(#ds)"/>
         <path d="M6 53 H114" stroke="url(#ds)" stroke-width="3" stroke-linecap="round"/>
       </svg>
-      <h2>予約を受け付けました</h2>
-      <p>確認のメッセージをLINEにもお送りします。当日お会いできるのを楽しみにしています。</p>
+      <h2>予約完了しました！</h2>
+      <p>ご不明点、予約の変更などありましたら公式ラインにご連絡ください。</p>
     </div>
     <div class="card done-card">
       <div class="confirm-rows" id="doneRows"></div>
@@ -733,9 +733,13 @@ document.getElementById('confirmSubmit').onclick = async ()=>{
 
   if (res.ok){
     closeSheet();
-    renderDone(res.booking, payload);
+    try { renderDone(res.booking || {}, payload); } catch(_){}
     setStep(3);
     show('view-done');
+    // 申込者へのLINE控え送信の結果をログ（診断用）
+    try{
+      console.log('[taiken] booking ok. hadUid=', res.hadUid, 'userNotified=', res.userNotified, 'notifyError=', res.userNotifyError || '');
+    }catch(_){}
   } else {
     closeSheet();
     toast(errMsg(res.error), true);
@@ -747,16 +751,24 @@ document.getElementById('confirmSubmit').onclick = async ()=>{
 };
 
 function renderDone(booking, payload){
-  const d = booking.date;
+  booking = booking || {};
+  const cls = state.selectedClass || {};
+  const d = booking.date || state.selectedDate || '';
+  const wd = booking.weekday || (d ? WD[wdOfYmd(d)] : '');
+  const className = booking.class_name || cls.class_name || cls.name || '';
+  const startT = booking.start_time || cls.start_time || '';
+  const endT = booking.end_time || cls.end_time || '';
+  const loc = booking.location || cls.location || '';
   const rows = [
-    ['日にち', `${jpDate(d)}（${booking.weekday}）`],
-    ['クラス', booking.class_name + (booking.start_time?`  ${booking.start_time}${booking.end_time?'〜'+booking.end_time:''}`:'')],
-    ['お名前', payload.name],
-    ['電話', payload.phone]
+    ['日にち', d ? `${jpDate(d)}（${wd}）` : ''],
+    ['クラス', className + (startT?`  ${startT}${endT?'〜'+endT:''}`:'')],
+    ['お名前', payload.name || ''],
+    ['電話', payload.phone || '']
   ];
-  if (booking.location) rows.splice(2,0,['場所', booking.location]);
+  if (loc) rows.splice(2,0,['場所', loc]);
   document.getElementById('doneRows').innerHTML =
-    rows.map(r=>`<div class="crow"><span class="k">${r[0]}</span><span class="v">${escapeHtml(r[1])}</span></div>`).join('');
+    rows.filter(r=>String(r[1]).trim()!=='')
+        .map(r=>`<div class="crow"><span class="k">${r[0]}</span><span class="v">${escapeHtml(r[1])}</span></div>`).join('');
 }
 
 /* ---------- 予約一覧 ---------- */
