@@ -166,19 +166,21 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 .adcal-dow span{text-align:center; font-size:11px; font-weight:600; color:var(--ink-2); padding:3px 0}
 .adcal-dow span.s{color:var(--sun-red,#e0573f)} .adcal-dow span.t{color:var(--blue)}
 .adcal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px}
-.adcal-day{aspect-ratio:1/1; border:1px solid transparent; border-radius:10px; background:var(--surface);
-  position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  cursor:pointer; transition:.12s; min-height:38px}
-.adcal-day .dn{font-family:var(--num); font-weight:600; font-size:14px; color:var(--ink)}
-.adcal-day.empty{background:transparent; border:none; cursor:default}
-.adcal-day.muted{background:transparent; cursor:default}
+.adcal-day{aspect-ratio:1/1; position:relative}
+.adcal-day .cell{position:absolute; inset:0; border-radius:10px; background:var(--surface);
+  border:1px solid transparent; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:3px; cursor:pointer; transition:.12s}
+.adcal-day .dn{font-family:var(--num); font-weight:600; font-size:14px; color:var(--ink); line-height:1}
+.adcal-day .mk{width:5px; height:5px; border-radius:50%; background:transparent}
+.adcal-day.empty .cell{display:none}
+.adcal-day.muted .cell{background:transparent; cursor:default}
 .adcal-day.muted .dn{color:var(--ink-3); opacity:.4}
-.adcal-day:not(.muted):not(.empty):hover{border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,122,69,.12)}
-.adcal-day.sel{border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,122,69,.22)}
-.adcal-day.blk-all{background:var(--danger-soft)} .adcal-day.blk-all .dn{color:var(--danger)}
-.adcal-day.blk-some{background:var(--warn-soft)} .adcal-day.blk-some .dn{color:#b9760f}
-.adcal-day .mk{position:absolute; bottom:4px; width:5px; height:5px; border-radius:50%}
-.adcal-day.blk-all .mk{background:var(--danger)} .adcal-day.blk-some .mk{background:var(--warn)}
+.adcal-day:not(.muted):not(.empty) .cell:active{transform:scale(.93)}
+.adcal-day.sel .cell{border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,122,69,.22)}
+.adcal-day.blk-all .cell{background:var(--danger-soft)} .adcal-day.blk-all .dn{color:var(--danger)}
+.adcal-day.blk-all .mk{background:var(--danger)}
+.adcal-day.blk-some .cell{background:var(--warn-soft)} .adcal-day.blk-some .dn{color:#b9760f}
+.adcal-day.blk-some .mk{background:var(--warn)}
 .adcal-legend{display:flex; gap:16px; margin-top:10px; font-size:11.5px; color:var(--ink-2)}
 .adcal-legend span{display:flex; align-items:center; gap:5px}
 .adcal-legend i{width:11px; height:11px; border-radius:4px; display:inline-block}
@@ -816,11 +818,10 @@ function renderAdminCalendar(){
     let cls = 'adcal-day';
     if (muted) cls += ' muted';
     if (state.adSelected === ymd) cls += ' sel';
-    let mk = '';
-    if (bd && bd.mode==='all'){ cls += ' blk-all'; mk = '<span class="mk"></span>'; }
-    else if (bd && bd.mode==='classes'){ cls += ' blk-some'; mk = '<span class="mk"></span>'; }
+    if (bd && bd.mode==='all') cls += ' blk-all';
+    else if (bd && bd.mode==='classes') cls += ' blk-some';
     const oc = muted ? '' : ' onclick="openDateEditor(\''+ymd+'\')"';
-    html += '<div class="'+cls+'"'+oc+'><span class="dn">'+d+'</span>'+mk+'</div>';
+    html += '<div class="'+cls+'"'+oc+'><div class="cell"><span class="dn">'+d+'</span><span class="mk"></span></div></div>';
   }
   grid.innerHTML = html;
 }
