@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>体験予約 管理 | SoL Dance School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SoL 体験レッスン予約 — 管理コンソール（サンライズ・テーマ）
+   ユーザー画面と同じトークン。ツール向けに密度を上げた配色。
+   ============================================================ */
+:root{
+  --bg:#FBFAF6; --surface:#ffffff; --surface-2:#F5F2EA; --surface-3:#faf8f2;
+  --ink:#1d1b24; --ink-2:#6c6a75; --ink-3:#a9a7b1;
+  --line:#ece9e0; --line-2:#dcd8ce;
+  --sun-1:#ff6a45; --sun-2:#ff9233; --sun-3:#ffc23c;
+  --accent:#ff7a45; --accent-deep:#cf4720; --accent-soft:#fff2ec;
+  --blue:#2c7be5; --blue-soft:#eef4fd;
+  --ok:#1f9d63; --ok-soft:#e8f6ee; --warn:#dd9024; --warn-soft:#fdf3e2;
+  --danger:#d7493b; --danger-soft:#fdecea;
+  --r:18px; --r-sm:12px; --r-xs:9px;
+  --shadow:0 1px 2px rgba(29,27,36,.04),0 12px 32px rgba(29,27,36,.07);
+  --shadow-sm:0 1px 2px rgba(29,27,36,.05),0 4px 14px rgba(29,27,36,.05);
+  --sunrise:linear-gradient(95deg,var(--sun-1),var(--sun-2) 55%,var(--sun-3));
+  --font:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+  --num:"Outfit","Noto Sans JP",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font); color:var(--ink); background:var(--bg);
+  line-height:1.6; -webkit-font-smoothing:antialiased; font-size:14.5px;
+  min-height:100vh;
+}
+.wrap{max-width:920px; margin:0 auto; padding:0 16px 60px;}
+button{font-family:var(--font)}
+input,select,textarea{font-family:var(--font)}
+
+/* ---- ヘッダー ---- */
+.top{display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:18px 2px 14px; position:sticky; top:0; background:linear-gradient(var(--bg) 78%,transparent);
+  z-index:30;}
+.brand{display:flex; align-items:center; gap:11px}
+.sun{width:30px; height:30px; border-radius:9px; background:var(--sunrise);
+  box-shadow:0 4px 12px rgba(255,122,69,.4); flex:none;}
+.brand-txt b{display:block; font-size:15px; font-weight:700; letter-spacing:.01em; line-height:1.25}
+.brand-txt span{font-family:var(--num); font-size:9.5px; letter-spacing:.2em;
+  color:var(--ink-3); text-transform:uppercase; font-weight:600}
+.logout{background:var(--surface); border:1px solid var(--line-2); color:var(--ink-2);
+  padding:8px 13px; border-radius:999px; font-weight:500; font-size:13px; cursor:pointer}
+.logout:active{background:var(--surface-2)}
+
+/* ---- タブ ---- */
+.tabs{display:flex; gap:6px; background:var(--surface-2); padding:5px; border-radius:14px;
+  margin-bottom:18px; position:sticky; top:62px; z-index:20; box-shadow:var(--shadow-sm);
+  overflow-x:auto; -webkit-overflow-scrolling:touch}
+.tab{flex:1 0 auto; border:none; background:transparent; color:var(--ink-2); cursor:pointer;
+  padding:10px 12px; border-radius:10px; font-weight:600; font-size:13.5px; white-space:nowrap;
+  display:flex; align-items:center; gap:6px; justify-content:center; transition:.15s}
+.tab .ti{font-family:var(--num); font-size:11px; font-weight:700}
+.tab.on{background:var(--surface); color:var(--accent-deep); box-shadow:var(--shadow-sm)}
+.tab .badge{font-family:var(--num); font-size:10.5px; font-weight:700; background:var(--accent);
+  color:#fff; border-radius:999px; padding:1px 7px; line-height:1.5}
+
+/* ---- パネル / カード ---- */
+.panel{display:none; animation:fade .25s ease}
+.panel.on{display:block}
+@keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); padding:18px; margin-bottom:14px}
+.card h2{margin:0 0 3px; font-size:16px; font-weight:700; display:flex; align-items:center; gap:8px}
+.card .desc{color:var(--ink-2); font-size:12.5px; margin:0 0 14px}
+.eyebrow{font-family:var(--num); font-size:10px; letter-spacing:.18em; font-weight:600;
+  color:var(--accent-deep); text-transform:uppercase; display:block; margin-bottom:3px}
+
+/* ---- フォーム ---- */
+.row{display:flex; gap:14px; flex-wrap:wrap}
+.field{margin-bottom:15px; flex:1 1 200px; min-width:0}
+.field:last-child{margin-bottom:0}
+.field>label{display:block; font-weight:600; font-size:13px; margin-bottom:6px}
+.field .sub{font-weight:400; color:var(--ink-3); font-size:11.5px; margin-left:4px}
+input[type=text],input[type=tel],input[type=number],input[type=date],select,textarea{
+  width:100%; border:1px solid var(--line-2); border-radius:11px; padding:11px 12px;
+  font-size:15px; color:var(--ink); background:var(--surface); transition:.15s; outline:none}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,122,69,.16)}
+textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
+.num-sm{max-width:130px}
+
+/* ---- トグルスイッチ ---- */
+.toggle{display:flex; align-items:center; gap:11px; cursor:pointer; user-select:none}
+.toggle input{display:none}
+.track{width:46px; height:27px; border-radius:999px; background:var(--line-2); position:relative;
+  transition:.2s; flex:none}
+.track::after{content:""; position:absolute; top:3px; left:3px; width:21px; height:21px; border-radius:50%;
+  background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:.2s}
+.toggle input:checked + .track{background:var(--sunrise)}
+.toggle input:checked + .track::after{transform:translateX(19px)}
+.toggle .tl{font-weight:600; font-size:13.5px}
+.toggle .tl small{display:block; font-weight:400; color:var(--ink-3); font-size:11.5px}
+
+/* ---- 曜日チップ ---- */
+.dows{display:flex; gap:7px; flex-wrap:wrap}
+.dowchip{font-family:var(--num); font-weight:700; font-size:14px; width:42px; height:42px;
+  border-radius:12px; border:1px solid var(--line-2); background:var(--surface); color:var(--ink-2);
+  cursor:pointer; display:grid; place-items:center; transition:.15s}
+.dowchip.on{background:var(--danger-soft); border-color:#f4c4be; color:var(--danger)}
+.dowchip.sun.on{} .dowchip[data-w="日"]{color:var(--sun-red,#e0573f)}
+.dowchip[data-w="土"]{color:var(--blue)}
+
+/* ---- クラス行 ---- */
+.clist{display:flex; flex-direction:column; gap:9px}
+.crow{display:flex; align-items:center; gap:13px; border:1px solid var(--line);
+  border-radius:var(--r-sm); padding:12px 13px; background:var(--surface-3); transition:.15s}
+.crow.enabled{background:var(--surface); border-color:#ffe2d4}
+.crow .ctime{font-family:var(--num); font-weight:700; font-size:13.5px; color:var(--accent-deep);
+  text-align:center; min-width:46px; line-height:1.3}
+.crow .ctime small{display:block; font-family:var(--font); font-weight:500; font-size:10px; color:var(--ink-3)}
+.crow .cmain{flex:1; min-width:0}
+.crow .cname{font-weight:700; font-size:14px; display:flex; align-items:center; gap:7px; flex-wrap:wrap}
+.crow .cmeta{font-size:11.5px; color:var(--ink-2); margin-top:1px}
+.wbadge{font-family:var(--num); font-size:10px; font-weight:700; letter-spacing:.04em;
+  background:var(--surface-2); color:var(--ink-2); border-radius:6px; padding:2px 7px}
+.pill{font-size:10px; font-weight:700; border-radius:999px; padding:2px 8px; letter-spacing:.02em}
+.pill.off{background:var(--surface-2); color:var(--ink-3)}
+.pill.inactive{background:var(--danger-soft); color:var(--danger)}
+.crow .cap{display:flex; align-items:center; gap:6px}
+.crow .cap label{font-size:11px; color:var(--ink-3); font-weight:600}
+.crow .cap input{width:58px; text-align:center; padding:8px 6px; font-family:var(--num); font-weight:700}
+.crow .ctog{flex:none}
+
+/* ---- 不可期間 ---- */
+.range-item{border:1px solid var(--line); border-radius:var(--r-sm); padding:13px;
+  background:var(--surface-3); margin-bottom:10px}
+.range-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:9px}
+.range-head .rl{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.modepill{font-size:10px; font-weight:700; border-radius:6px; padding:2px 8px; letter-spacing:.02em}
+.modepill.block{background:var(--danger-soft); color:var(--danger)}
+.modepill.limit{background:var(--warn-soft); color:var(--warn)}
+.range-dates{font-family:var(--num); font-weight:600; font-size:12.5px; color:var(--ink-2)}
+.allowed-wrap{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-2)}
+.allowed-wrap .lbl{font-size:11.5px; color:var(--ink-2); font-weight:600; margin-bottom:7px}
+.checks{display:flex; flex-direction:column; gap:6px}
+.check{display:flex; align-items:center; gap:9px; font-size:13px; cursor:pointer; padding:5px 2px}
+.check input{width:18px; height:18px; accent-color:var(--accent); flex:none}
+.del-x{border:none; background:var(--danger-soft); color:var(--danger); width:30px; height:30px;
+  border-radius:9px; cursor:pointer; font-size:16px; line-height:1; flex:none}
+.del-x:active{filter:brightness(.95)}
+.add-range{border:1px dashed var(--line-2); border-radius:var(--r-sm); padding:14px; background:var(--surface)}
+.modeseg{display:flex; gap:0; border:1px solid var(--line-2); border-radius:10px; overflow:hidden; max-width:260px}
+.modeseg button{flex:1; border:none; background:var(--surface); padding:9px; font-weight:600; font-size:13px;
+  color:var(--ink-2); cursor:pointer}
+.modeseg button.on{background:var(--sunrise); color:#fff}
+
+/* ---- 予約一覧 ---- */
+.filterbar{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:4px}
+.filterbar .field{margin-bottom:0; flex:0 1 150px}
+.bk{border:1px solid var(--line); border-radius:var(--r-sm); padding:14px; background:var(--surface); margin-bottom:11px}
+.bk-top{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+.bk-when{font-family:var(--num); font-weight:700; font-size:15px; color:var(--ink)}
+.bk-when .wd{font-size:12px; color:var(--ink-2); margin-left:3px}
+.bk-when .tm{display:block; font-size:13px; color:var(--accent-deep); font-weight:600; margin-top:1px}
+.bk-class{font-size:13px; color:var(--ink-2); margin-top:2px}
+.st{font-size:11px; font-weight:700; border-radius:999px; padding:4px 11px; white-space:nowrap}
+.st.pending{background:var(--warn-soft); color:var(--warn)}
+.st.confirmed{background:var(--ok-soft); color:var(--ok)}
+.st.done{background:var(--blue-soft); color:var(--blue)}
+.st.cancelled{background:var(--surface-2); color:var(--ink-3)}
+.bk-person{margin-top:11px; padding-top:11px; border-top:1px solid var(--line); display:flex; flex-wrap:wrap; gap:5px 18px}
+.kv{font-size:13px}
+.kv b{font-weight:700} .kv .k{color:var(--ink-3); font-size:11px; display:block; font-weight:600; letter-spacing:.02em}
+.bk-person a{color:var(--accent-deep); text-decoration:none; font-weight:700}
+.bk-note{margin-top:9px; font-size:12.5px; color:var(--ink-2); background:var(--surface-2);
+  border-radius:9px; padding:9px 11px; white-space:pre-wrap}
+.bk-actions{margin-top:12px; display:flex; gap:9px; align-items:center; flex-wrap:wrap}
+.bk-actions select{flex:0 1 150px; padding:9px 11px}
+.bk-actions input{flex:1 1 160px; padding:9px 11px; font-size:14px}
+
+/* ---- ボタン ---- */
+.btn{border:none; border-radius:12px; padding:12px 18px; font-weight:700; font-size:14px;
+  cursor:pointer; transition:.15s; display:inline-flex; align-items:center; gap:7px; justify-content:center}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--sunrise); color:#fff; box-shadow:0 8px 20px rgba(255,122,69,.34)}
+.btn-ghost{background:var(--surface); color:var(--ink); border:1px solid var(--line-2)}
+.btn-sm{padding:9px 14px; font-size:13px; border-radius:10px}
+.btn-block{width:100%}
+.btn:disabled{opacity:.55; cursor:default; transform:none}
+.save-bar{position:sticky; bottom:0; padding:12px 0 0; background:linear-gradient(transparent,var(--bg) 30%); margin-top:16px}
+
+/* ---- ログイン ---- */
+.login{min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; gap:0}
+.login .sun{width:54px; height:54px; border-radius:16px; margin-bottom:18px}
+.login h1{font-size:21px; margin:0 0 4px; font-weight:700}
+.login p{color:var(--ink-2); font-size:13.5px; margin:0 0 22px; text-align:center}
+.login-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+  box-shadow:var(--shadow); padding:22px; width:100%; max-width:380px}
+.login-card label{font-weight:600; font-size:13px; display:block; margin-bottom:7px}
+.login-err{color:var(--danger); font-size:13px; margin-top:11px; display:none; font-weight:500}
+
+/* ---- 状態 ---- */
+.empty{text-align:center; color:var(--ink-2); padding:34px 16px; font-size:13.5px}
+.empty .ico{font-size:30px; display:block; margin-bottom:8px; opacity:.55}
+.loading{display:flex; align-items:center; gap:11px; color:var(--ink-2); font-size:13.5px; padding:24px; justify-content:center}
+.spin{width:19px; height:19px; border:2.5px solid var(--line-2); border-top-color:var(--accent);
+  border-radius:50%; animation:rot .7s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.hide{display:none !important}
+
+/* ---- トースト ---- */
+#toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
+  background:var(--ink); color:#fff; padding:12px 20px; border-radius:999px; font-size:13.5px; font-weight:600;
+  box-shadow:0 10px 30px rgba(0,0,0,.25); opacity:0; transition:.25s; z-index:100; pointer-events:none; max-width:90vw}
+#toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+#toast.ok{background:#1c8a57} #toast.err{background:var(--danger)}
+
+@media(max-width:560px){
+  .crow{flex-wrap:wrap}
+  .crow .cmain{flex:1 1 100%; order:-1}
+  .bk-actions select,.bk-actions input{flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ ログイン ============ -->
+<div id="login" class="login">
+  <div class="sun"></div>
+  <h1>体験予約 管理</h1>
+  <p>SoL Dance School<br>管理用パスコードを入力してください</p>
+  <div class="login-card">
+    <label for="tokenInput">管理パスコード</label>
+    <input type="password" id="tokenInput" placeholder="Admin Token" autocomplete="off"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-err" id="loginErr"></div>
+    <button class="btn btn-primary btn-block" id="loginBtn" style="margin-top:16px" onclick="doLogin()">ログイン</button>
+  </div>
+</div>
+
+<!-- ============ アプリ ============ -->
+<div id="app" class="wrap hide">
+  <div class="top">
+    <div class="brand">
+      <div class="sun"></div>
+      <div class="brand-txt"><b>体験予約 管理</b><span>SoL Dance School</span></div>
+    </div>
+    <button class="logout" onclick="doLogout()">ログアウト</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-tab="reception" onclick="switchTab('reception')"><span class="ti">01</span>受付設定</button>
+    <button class="tab" data-tab="classes" onclick="switchTab('classes')"><span class="ti">02</span>クラス公開</button>
+    <button class="tab" data-tab="blocked" onclick="switchTab('blocked')"><span class="ti">03</span>不可期間</button>
+    <button class="tab" data-tab="bookings" onclick="switchTab('bookings')"><span class="ti">04</span>予約一覧<span class="badge hide" id="bkBadge">0</span></button>
+  </div>
+
+  <!-- ---- 01 受付設定 ---- -->
+  <div class="panel on" id="panel-reception">
+    <div class="card">
+      <span class="eyebrow">Reception</span>
+      <h2>体験受付の基本設定</h2>
+      <p class="desc">受付のオン／オフ、期間、予約フォームの案内文を設定します。</p>
+
+      <div class="field">
+        <label class="toggle">
+          <input type="checkbox" id="recEnabled">
+          <span class="track"></span>
+          <span class="tl">体験受付を有効にする<small>オフにするとユーザー画面は「受付停止中」と表示されます</small></span>
+        </label>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>受付開始日 <span class="sub">この日から予約可</span></label>
+          <input type="date" id="recStart">
+        </div>
+        <div class="field">
+          <label>受付終了日 <span class="sub">この日まで予約可</span></label>
+          <input type="date" id="recEnd">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label>受付までの猶予日数 <span class="sub">当日=0 / 翌日以降=1</span></label>
+          <input type="number" class="num-sm" id="leadTime" min="0" max="90" step="1">
+        </div>
+        <div class="field">
+          <label>1クラスの既定定員 <span class="sub">クラス毎に上書き可</span></label>
+          <input type="number" class="num-sm" id="defCap" min="1" max="999" step="1">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="toggle">
+          <input type="checkbox" id="notifyUser">
+          <span class="track"></span>
+          <span class="tl">本人にもLINEで確認通知を送る<small>LINE経由の予約時、申込者にも受付完了メッセージを送信します</small></span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label>予約フォームの案内文 <span class="sub">任意・フォーム上部に表示</span></label>
+        <textarea id="formNote" placeholder="例）動きやすい服装でお越しください。更衣室・シューズの貸出あり。"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">Notification</span>
+      <h2>管理者LINE通知のテスト</h2>
+      <p class="desc">予約が入ると管理者LINEへ自動通知されます。下のボタンで送信テストができます。</p>
+      <button class="btn btn-ghost btn-sm" id="testBtn" onclick="testNotify()">🔔 テスト通知を送信</button>
+    </div>
+
+    <div class="save-bar">
+      <button class="btn btn-primary btn-block" id="saveReception" onclick="saveSettings('受付設定')">受付設定を保存</button>
+    </div>
+  </div>
+
+  <!-- ---- 02 クラス公開 ---- -->
+  <div class="panel" id="panel-classes">
+    <div class="card">
+      <span class="eyebrow">Classes</span>
+      <h2>体験を受け付けるクラス</h2>
+      <p class="desc">体験可能にするクラスをオンにします。<b>初期状態はすべて非公開</b>です。クラス毎に定員も設定できます。</p>
+      <div class="clist" id="classList">
+        <div class="loading"><span class="spin"></span>読み込み中…</div>
+      </div>
+    </div>
+    <div class="save-bar">
+      <button class="btn btn-primary btn-block" id="saveClasses" onclick="saveSettings('クラス公開設定')">クラス設定を保存</button>
+    </div>
+  </div>
+
+  <!-- ---- 03 不可期間 ---- -->
+  <div class="panel" id="panel-blocked">
+    <div class="card">
+      <span class="eyebrow">Blocked weekdays</span>
+      <h2>体験不可の曜日</h2>
+      <p class="desc">毎週この曜日は体験不可にします（例：講師不在の曜日）。</p>
+      <div class="dows" id="dowChips"></div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">Blocked / limited periods</span>
+      <h2>体験不可・限定の期間</h2>
+      <p class="desc">特定の期間を「全面不可」または「一部クラスのみ可（限定）」に設定できます。長期休暇やイベント期間にどうぞ。</p>
+      <div id="rangeList"></div>
+
+      <div class="add-range" style="margin-top:6px">
+        <span class="eyebrow">期間を追加</span>
+        <div class="field" style="margin-top:8px; margin-bottom:12px">
+          <label>モード</label>
+          <div class="modeseg" id="newMode">
+            <button type="button" class="on" data-mode="block" onclick="setNewMode('block')">全面不可</button>
+            <button type="button" data-mode="limit" onclick="setNewMode('limit')">一部のみ可</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field"><label>開始日</label><input type="date" id="newStart"></div>
+          <div class="field"><label>終了日</label><input type="date" id="newEnd"></div>
+        </div>
+        <div class="field">
+          <label>ラベル <span class="sub">任意・管理用メモ</span></label>
+          <input type="text" id="newLabel" placeholder="例）夏季休業 / 発表会準備期間">
+        </div>
+        <div class="field hide" id="newAllowedWrap">
+          <label>この期間に体験可能なクラス</label>
+          <div class="checks" id="newAllowedChecks"></div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="addRange()">＋ 期間を追加</button>
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <button class="btn btn-primary btn-block" id="saveBlocked" onclick="saveSettings('不可期間設定')">不可期間を保存</button>
+    </div>
+  </div>
+
+  <!-- ---- 04 予約一覧 ---- -->
+  <div class="panel" id="panel-bookings">
+    <div class="card">
+      <span class="eyebrow">Bookings</span>
+      <h2>体験予約の一覧</h2>
+      <p class="desc">体験希望日で絞り込めます。ステータスの変更やメモの追加ができます。</p>
+      <div class="filterbar">
+        <div class="field"><label>開始日</label><input type="date" id="fFrom"></div>
+        <div class="field"><label>終了日</label><input type="date" id="fTo"></div>
+        <div class="field">
+          <label>ステータス</label>
+          <select id="fStatus">
+            <option value="">すべて</option>
+            <option value="pending">仮予約</option>
+            <option value="confirmed">確定</option>
+            <option value="done">来店済み</option>
+            <option value="cancelled">キャンセル</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="loadBookings()">絞り込み</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearFilter()">クリア</button>
+      </div>
+    </div>
+    <div id="bookingList">
+      <div class="empty"><span class="ico">📋</span>「絞り込み」を押すと予約を読み込みます</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   ▼▼▼ デプロイ後に書き換える ▼▼▼
+   ============================================================ */
+const API_URL = 'PASTE_YOUR_GAS_WEBAPP_URL_HERE';   // GASウェブアプリのURL（taiken.html と同じURL）
+/* ============================================================ */
+
+const LS_KEY = 'sol_taiken_admin_token';
+const WD_ALL = ['日','月','火','水','木','金','土'];
+const STATUS_LABEL = { pending:'仮予約', confirmed:'確定', done:'来店済み', cancelled:'キャンセル' };
+
+const state = {
+  token: '',
+  settings: null,   // サーバーから取得した設定（保存時にこれを送る）
+  classes: [],      // adminGetSettings の classes
+  newMode: 'block',
+  busy: false
+};
+
+/* ---------- 通信 ---------- */
+async function apiPost(action, extra){
+  const body = Object.assign({ action, adminToken: state.token }, extra || {});
+  const r = await fetch(API_URL, {
+    method:'POST',
+    headers:{ 'Content-Type':'text/plain;charset=utf-8' }, // GASでpreflight回避
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+/* ---------- トースト ---------- */
+let toastTimer = null;
+function toast(msg, kind){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + (kind || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.className = t.className.replace('show','').trim(); }, 2600);
+}
+
+/* ---------- ログイン ---------- */
+async function doLogin(){
+  const input = document.getElementById('tokenInput');
+  const err = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  const token = (input.value || '').trim();
+  err.style.display = 'none';
+  if (!token){ err.textContent = 'パスコードを入力してください'; err.style.display='block'; return; }
+  if (API_URL.startsWith('PASTE')){ err.textContent = 'API_URL が未設定です（コードを確認してください）'; err.style.display='block'; return; }
+
+  btn.disabled = true; btn.textContent = '確認中…';
+  state.token = token;
+  try{
+    const res = await apiPost('adminGetSettings');
+    if (res && res.ok){
+      localStorage.setItem(LS_KEY, token);
+      applySettings(res);
+      document.getElementById('login').classList.add('hide');
+      document.getElementById('app').classList.remove('hide');
+    } else {
+      state.token = '';
+      err.textContent = res && res.error === 'admin_token_not_set'
+        ? 'サーバー側でパスコードが未設定です（ScriptProperties: ADMIN_TOKEN）'
+        : 'パスコードが正しくありません';
+      err.style.display = 'block';
+    }
+  }catch(e){
+    state.token = '';
+    err.textContent = '通信に失敗しました。URLと接続を確認してください';
+    err.style.display = 'block';
+  }finally{
+    btn.disabled = false; btn.textContent = 'ログイン';
+  }
+}
+
+function doLogout(){
+  localStorage.removeItem(LS_KEY);
+  state.token = ''; state.settings = null; state.classes = [];
+  document.getElementById('app').classList.add('hide');
+  document.getElementById('login').classList.remove('hide');
+  document.getElementById('tokenInput').value = '';
+}
+
+/* ---------- 設定の取得・反映 ---------- */
+async function reloadSettings(){
+  const res = await apiPost('adminGetSettings');
+  if (res && res.ok) applySettings(res);
+  return res;
+}
+
+function applySettings(res){
+  state.settings = res.settings || {};
+  state.classes = res.classes || [];
+  // 既定値の保険
+  const s = state.settings;
+  s.reception = s.reception || { enabled:false, start:'', end:'' };
+  s.classTrialEnabled = s.classTrialEnabled || {};
+  s.classCapacity = s.classCapacity || {};
+  s.blockedWeekdays = s.blockedWeekdays || [];
+  s.blockedRanges = s.blockedRanges || [];
+
+  renderReception();
+  renderClasses();
+  renderBlocked();
+}
+
+/* ---------- 01 受付設定 ---------- */
+function renderReception(){
+  const s = state.settings;
+  document.getElementById('recEnabled').checked = !!s.reception.enabled;
+  document.getElementById('recStart').value = s.reception.start || '';
+  document.getElementById('recEnd').value = s.reception.end || '';
+  document.getElementById('leadTime').value = (s.leadTimeDays != null ? s.leadTimeDays : 1);
+  document.getElementById('defCap').value = (s.defaultCapacity != null ? s.defaultCapacity : 2);
+  document.getElementById('notifyUser').checked = !!s.notifyUser;
+  document.getElementById('formNote').value = s.formNote || '';
+}
+
+/* ---------- 02 クラス公開 ---------- */
+function renderClasses(){
+  const box = document.getElementById('classList');
+  if (!state.classes.length){
+    box.innerHTML = '<div class="empty"><span class="ico">🗂️</span>classes シートに有効なクラスがありません</div>';
+    return;
+  }
+  box.innerHTML = '';
+  state.classes.forEach(c=>{
+    const on = !!c.trialEnabled;
+    const inactive = String(c.active) === 'false' || c.active === false;
+    const row = document.createElement('div');
+    row.className = 'crow' + (on ? ' enabled' : '');
+    const wd = c.weekday ? '<span class="wbadge">'+esc(c.weekday)+'</span>' : '<span class="wbadge">毎日</span>';
+    const inactivePill = inactive ? '<span class="pill inactive">停止中</span>' : '';
+    const offPill = (!on && !inactive) ? '<span class="pill off">非公開</span>' : '';
+    row.innerHTML =
+      '<div class="ctime">'+esc(c.start_time||'--')+'<small>'+esc(c.end_time||'')+'</small></div>'+
+      '<div class="cmain">'+
+        '<div class="cname">'+esc(c.class_name||c.class_id)+wd+inactivePill+offPill+'</div>'+
+        '<div class="cmeta">'+[c.instructor,c.location].filter(Boolean).map(esc).join(' ・ ')+'</div>'+
+      '</div>'+
+      '<div class="cap"><label>定員</label>'+
+        '<input type="number" min="1" max="999" value="'+(c.capacity||state.settings.defaultCapacity||2)+'" data-cap="'+esc(c.class_id)+'"></div>'+
+      '<label class="toggle ctog"><input type="checkbox" data-en="'+esc(c.class_id)+'" '+(on?'checked':'')+'>'+
+        '<span class="track"></span></label>';
+    box.appendChild(row);
+  });
+  // トグルで行の見た目を更新
+  box.querySelectorAll('input[data-en]').forEach(cb=>{
+    cb.addEventListener('change', ()=>{
+      cb.closest('.crow').classList.toggle('enabled', cb.checked);
+    });
+  });
+}
+
+/* ---------- 03 不可期間 ---------- */
+function renderBlocked(){
+  // 曜日チップ
+  const chips = document.getElementById('dowChips');
+  chips.innerHTML = '';
+  WD_ALL.forEach(w=>{
+    const on = state.settings.blockedWeekdays.indexOf(w) >= 0;
+    const b = document.createElement('button');
+    b.className = 'dowchip' + (on ? ' on' : '');
+    b.setAttribute('data-w', w);
+    b.textContent = w;
+    b.onclick = ()=> b.classList.toggle('on');
+    chips.appendChild(b);
+  });
+  // 期間リスト
+  renderRanges();
+  // 追加フォームのクラスチェック
+  renderAllowedChecks(document.getElementById('newAllowedChecks'), []);
+}
+
+function renderRanges(){
+  const list = document.getElementById('rangeList');
+  const ranges = state.settings.blockedRanges;
+  if (!ranges.length){
+    list.innerHTML = '<div class="empty" style="padding:18px"><span class="ico">📅</span>登録された期間はありません</div>';
+    return;
+  }
+  list.innerHTML = '';
+  ranges.forEach((rg, i)=>{
+    const item = document.createElement('div');
+    item.className = 'range-item';
+    const classNames = (rg.allowedClassIds||[]).map(id=>{
+      const c = state.classes.find(x=>String(x.class_id)===String(id));
+      return c ? (c.class_name||c.class_id) : id;
+    });
+    let allowedHtml = '';
+    if (rg.mode === 'limit'){
+      allowedHtml = '<div class="allowed-wrap"><div class="lbl">体験可能なクラス</div><div class="checks" data-allowed="'+i+'"></div></div>';
+    }
+    item.innerHTML =
+      '<div class="range-head">'+
+        '<div class="rl"><span class="modepill '+rg.mode+'">'+(rg.mode==='limit'?'一部のみ可':'全面不可')+'</span>'+esc(rg.label||'（ラベルなし）')+'</div>'+
+        '<button class="del-x" title="削除" onclick="removeRange('+i+')">×</button>'+
+      '</div>'+
+      '<div class="range-dates">'+esc(rg.start)+' 〜 '+esc(rg.end)+'</div>'+
+      allowedHtml;
+    list.appendChild(item);
+    if (rg.mode === 'limit'){
+      renderAllowedChecks(item.querySelector('[data-allowed="'+i+'"]'), rg.allowedClassIds||[]);
+    }
+  });
+}
+
+function renderAllowedChecks(container, selectedIds){
+  if (!container) return;
+  container.innerHTML = '';
+  const enabledClasses = state.classes.filter(c=>{
+    const inactive = String(c.active) === 'false' || c.active === false;
+    return !inactive;
+  });
+  if (!enabledClasses.length){
+    container.innerHTML = '<div style="font-size:12px;color:var(--ink-3)">有効なクラスがありません</div>';
+    return;
+  }
+  enabledClasses.forEach(c=>{
+    const checked = selectedIds.map(String).indexOf(String(c.class_id)) >= 0;
+    const lab = document.createElement('label');
+    lab.className = 'check';
+    const wd = c.weekday ? ' ('+c.weekday+')' : '';
+    lab.innerHTML = '<input type="checkbox" value="'+esc(c.class_id)+'" '+(checked?'checked':'')+'>'+
+      '<span>'+esc(c.class_name||c.class_id)+'<span style="color:var(--ink-3);font-size:11px">'+esc(wd)+' '+esc(c.start_time||'')+'</span></span>';
+    container.appendChild(lab);
+  });
+}
+
+function setNewMode(mode){
+  state.newMode = mode;
+  document.querySelectorAll('#newMode button').forEach(b=>{
+    b.classList.toggle('on', b.getAttribute('data-mode') === mode);
+  });
+  document.getElementById('newAllowedWrap').classList.toggle('hide', mode !== 'limit');
+}
+
+function addRange(){
+  const start = document.getElementById('newStart').value;
+  const end = document.getElementById('newEnd').value;
+  const label = document.getElementById('newLabel').value.trim();
+  if (!start || !end){ toast('開始日と終了日を入力してください', 'err'); return; }
+  if (start > end){ toast('終了日は開始日以降にしてください', 'err'); return; }
+
+  let allowed = [];
+  if (state.newMode === 'limit'){
+    allowed = Array.from(document.querySelectorAll('#newAllowedChecks input:checked')).map(cb=>cb.value);
+    if (!allowed.length){ toast('限定モードでは1つ以上クラスを選択してください', 'err'); return; }
+  }
+  state.settings.blockedRanges.push({
+    id: 'r' + Date.now().toString(36),
+    start, end, label,
+    mode: state.newMode,
+    allowedClassIds: allowed
+  });
+  // フォームをリセット
+  document.getElementById('newStart').value = '';
+  document.getElementById('newEnd').value = '';
+  document.getElementById('newLabel').value = '';
+  document.querySelectorAll('#newAllowedChecks input:checked').forEach(cb=>cb.checked=false);
+  renderRanges();
+  toast('期間を追加しました（保存を忘れずに）', 'ok');
+}
+
+function removeRange(i){
+  state.settings.blockedRanges.splice(i, 1);
+  renderRanges();
+}
+
+/* ---------- 設定の保存（全タブ共通：現在の入力を集めて送信） ---------- */
+function collectSettings(){
+  const s = state.settings;
+  // 01 受付
+  s.reception.enabled = document.getElementById('recEnabled').checked;
+  s.reception.start = document.getElementById('recStart').value || '';
+  s.reception.end = document.getElementById('recEnd').value || '';
+  s.leadTimeDays = parseInt(document.getElementById('leadTime').value, 10);
+  if (isNaN(s.leadTimeDays)) s.leadTimeDays = 1;
+  s.defaultCapacity = parseInt(document.getElementById('defCap').value, 10);
+  if (isNaN(s.defaultCapacity)) s.defaultCapacity = 2;
+  s.notifyUser = document.getElementById('notifyUser').checked;
+  s.formNote = document.getElementById('formNote').value || '';
+
+  // 02 クラス公開＋定員
+  const en = {}, cap = {};
+  document.querySelectorAll('#classList input[data-en]').forEach(cb=>{
+    en[cb.getAttribute('data-en')] = cb.checked;
+  });
+  document.querySelectorAll('#classList input[data-cap]').forEach(inp=>{
+    const v = parseInt(inp.value, 10);
+    if (!isNaN(v) && v > 0) cap[inp.getAttribute('data-cap')] = v;
+  });
+  // クラスが描画済みのときだけ上書き（未描画タブで消さない保険）
+  if (Object.keys(en).length){ s.classTrialEnabled = en; s.classCapacity = cap; }
+
+  // 03 不可曜日
+  const wds = [];
+  document.querySelectorAll('#dowChips .dowchip.on').forEach(b=>wds.push(b.getAttribute('data-w')));
+  s.blockedWeekdays = wds;
+
+  // 03 限定期間の許可クラス（チェック状態を反映）
+  s.blockedRanges.forEach((rg, i)=>{
+    if (rg.mode === 'limit'){
+      const box = document.querySelector('[data-allowed="'+i+'"]');
+      if (box){
+        rg.allowedClassIds = Array.from(box.querySelectorAll('input:checked')).map(cb=>cb.value);
+      }
+    }
+  });
+
+  return s;
+}
+
+async function saveSettings(label){
+  if (state.busy) return;
+  state.busy = true;
+  const btns = document.querySelectorAll('.save-bar .btn');
+  btns.forEach(b=>b.disabled = true);
+  try{
+    const settings = collectSettings();
+    const res = await apiPost('adminSaveSettings', { settings });
+    if (res && res.ok){
+      applySettings({ settings: res.settings, classes: state.classes });
+      toast((label||'設定') + 'を保存しました', 'ok');
+    } else {
+      toast('保存に失敗しました：' + (res && res.error || '不明なエラー'), 'err');
+    }
+  }catch(e){
+    toast('通信エラーで保存できませんでした', 'err');
+  }finally{
+    state.busy = false;
+    document.querySelectorAll('.save-bar .btn').forEach(b=>b.disabled = false);
+  }
+}
+
+/* ---------- 通知テスト ---------- */
+async function testNotify(){
+  const btn = document.getElementById('testBtn');
+  btn.disabled = true; btn.textContent = '送信中…';
+  try{
+    const res = await apiPost('adminTestNotify');
+    if (res && res.ok) toast('管理者LINEにテスト通知を送信しました', 'ok');
+    else toast('送信に失敗しました：' + (res && res.error || '不明'), 'err');
+  }catch(e){
+    toast('通信エラーが発生しました', 'err');
+  }finally{
+    btn.disabled = false; btn.textContent = '🔔 テスト通知を送信';
+  }
+}
+
+/* ---------- 04 予約一覧 ---------- */
+async function loadBookings(){
+  const list = document.getElementById('bookingList');
+  list.innerHTML = '<div class="loading"><span class="spin"></span>読み込み中…</div>';
+  const from = document.getElementById('fFrom').value || '';
+  const to = document.getElementById('fTo').value || '';
+  const status = document.getElementById('fStatus').value || '';
+  try{
+    const res = await apiPost('adminListBookings', { from, to, status });
+    if (!res || !res.ok){ list.innerHTML = '<div class="empty"><span class="ico">⚠️</span>取得に失敗しました</div>'; return; }
+    renderBookings(res.bookings || []);
+    const badge = document.getElementById('bkBadge');
+    badge.textContent = res.count || 0;
+    badge.classList.toggle('hide', !(res.count > 0));
+  }catch(e){
+    list.innerHTML = '<div class="empty"><span class="ico">⚠️</span>通信エラーが発生しました</div>';
+  }
+}
+
+function renderBookings(rows){
+  const list = document.getElementById('bookingList');
+  if (!rows.length){
+    list.innerHTML = '<div class="empty"><span class="ico">🗒️</span>条件に合う予約はありません</div>';
+    return;
+  }
+  list.innerHTML = '';
+  rows.forEach(b=>{
+    const st = String(b.status||'pending');
+    const card = document.createElement('div');
+    card.className = 'bk';
+    const phone = b.phone ? '<a href="tel:'+esc(String(b.phone).replace(/[^0-9+]/g,''))+'">'+esc(b.phone)+'</a>' : '—';
+    const exp = b.experience ? '<div class="kv"><span class="k">ダンス経験</span>'+esc(b.experience)+'</div>' : '';
+    const age = b.age ? '<div class="kv"><span class="k">年齢/学年</span>'+esc(b.age)+'</div>' : '';
+    const kana = b.kana ? '<span style="color:var(--ink-3);font-size:12px;font-weight:400"> （'+esc(b.kana)+'）</span>' : '';
+    const lineName = b.line_display_name ? '<div class="kv"><span class="k">LINE名</span>'+esc(b.line_display_name)+'</div>' : '';
+    const note = b.note ? '<div class="bk-note">📝 '+esc(b.note)+'</div>' : '';
+    const adminNote = b.admin_note || '';
+
+    card.innerHTML =
+      '<div class="bk-top">'+
+        '<div>'+
+          '<div class="bk-when">'+esc(b.date)+'<span class="wd">('+esc(b.weekday||'')+')</span>'+
+            '<span class="tm">'+esc(b.start_time||'')+(b.end_time?(' – '+esc(b.end_time)):'')+'</span></div>'+
+          '<div class="bk-class">'+esc(b.class_name||b.class_id||'')+(b.location?(' ・ '+esc(b.location)):'')+'</div>'+
+        '</div>'+
+        '<span class="st '+st+'">'+(STATUS_LABEL[st]||st)+'</span>'+
+      '</div>'+
+      '<div class="bk-person">'+
+        '<div class="kv"><span class="k">お名前</span><b>'+esc(b.name||'')+'</b>'+kana+'</div>'+
+        age +
+        '<div class="kv"><span class="k">電話</span>'+phone+'</div>'+
+        exp + lineName +
+      '</div>'+
+      note +
+      '<div class="bk-actions">'+
+        '<select data-st="'+esc(b.booking_id)+'">'+
+          ['pending','confirmed','done','cancelled'].map(v=>
+            '<option value="'+v+'" '+(v===st?'selected':'')+'>'+STATUS_LABEL[v]+'</option>').join('')+
+        '</select>'+
+        '<input type="text" data-note="'+esc(b.booking_id)+'" placeholder="管理メモ（任意）" value="'+esc(adminNote)+'">'+
+        '<button class="btn btn-ghost btn-sm" onclick="updateBooking(\''+esc(b.booking_id)+'\', this)">更新</button>'+
+      '</div>';
+    list.appendChild(card);
+  });
+}
+
+async function updateBooking(bookingId, btn){
+  if (state.busy) return;
+  state.busy = true;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = '更新中…';
+  const status = document.querySelector('select[data-st="'+cssEsc(bookingId)+'"]').value;
+  const adminNote = document.querySelector('input[data-note="'+cssEsc(bookingId)+'"]').value;
+  try{
+    const res = await apiPost('adminUpdateBooking', { bookingId, status, adminNote });
+    if (res && res.ok){
+      toast('予約を更新しました', 'ok');
+      // カード上のステータスピルを更新
+      const card = btn.closest('.bk');
+      const pill = card.querySelector('.st');
+      pill.className = 'st ' + status;
+      pill.textContent = STATUS_LABEL[status] || status;
+    } else {
+      toast('更新に失敗しました：' + (res && res.error || '不明'), 'err');
+    }
+  }catch(e){
+    toast('通信エラーが発生しました', 'err');
+  }finally{
+    state.busy = false;
+    btn.disabled = false; btn.textContent = orig;
+  }
+}
+
+function clearFilter(){
+  document.getElementById('fFrom').value = '';
+  document.getElementById('fTo').value = '';
+  document.getElementById('fStatus').value = '';
+  loadBookings();
+}
+
+/* ---------- タブ切替 ---------- */
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.getAttribute('data-tab')===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('panel-'+name).classList.add('on');
+  if (name === 'bookings' && document.getElementById('bookingList').querySelector('.empty')){
+    // 初回だけ自動ロード
+    if (!switchTab._bkLoaded){ switchTab._bkLoaded = true; loadBookings(); }
+  }
+}
+
+/* ---------- ユーティリティ ---------- */
+function esc(s){
+  return String(s==null?'':s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function cssEsc(s){ return String(s).replace(/["\\]/g,'\\$&'); }
+
+/* ---------- 起動 ---------- */
+(function init(){
+  const saved = localStorage.getItem(LS_KEY);
+  if (saved && !API_URL.startsWith('PASTE')){
+    state.token = saved;
+    apiPost('adminGetSettings').then(res=>{
+      if (res && res.ok){
+        applySettings(res);
+        document.getElementById('login').classList.add('hide');
+        document.getElementById('app').classList.remove('hide');
+      } else {
+        state.token = '';
+        localStorage.removeItem(LS_KEY);
+      }
+    }).catch(()=>{ state.token=''; });
+  }
+})();
+</script>
+</body>
+</html>
