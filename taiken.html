@@ -141,6 +141,8 @@ body{
 .seat.few b{color:var(--warn)}
 .fullbadge{font-size:11px; font-weight:700; color:var(--danger);
   background:#fdeceb; padding:3px 8px; border-radius:999px}
+.accepting{font-size:11px; font-weight:700; color:var(--ok);
+  background:#e8f6ee; padding:3px 9px; border-radius:999px}
 .chev{color:var(--accent); font-size:16px; margin-left:2px}
 
 /* ---- フォーム ---- */
@@ -650,7 +652,7 @@ function renderClasses(ymd, classes){
     const meta = [c.instructor, c.location].filter(Boolean).join(' / ');
     const right = full
       ? '<span class="fullbadge">満席</span>'
-      : `<span class="seat ${c.remaining<=2?'few':''}">残 <b>${c.remaining}</b></span><span class="chev">›</span>`;
+      : `<span class="accepting">受付中</span><span class="chev">›</span>`;
     html += `<div class="classcard ${full?'isfull':''}" data-i="${i}">
         <div class="time">${tm||'—'}<small>${c.end_time?'〜'+c.end_time.replace(/^0/,''):'開始'}</small></div>
         <div class="body"><div class="nm">${escapeHtml(c.class_name)}</div>${meta?`<div class="meta">${escapeHtml(meta)}</div>`:''}</div>
