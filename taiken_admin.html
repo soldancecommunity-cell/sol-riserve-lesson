@@ -172,10 +172,9 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
   gap:3px; cursor:pointer; transition:.12s}
 .adcal-day .dn{font-family:var(--num); font-weight:600; font-size:14px; color:var(--ink); line-height:1}
 .adcal-day .mk{width:5px; height:5px; border-radius:50%; background:transparent}
-.adcal-day.empty .cell{display:none}
 .adcal-day.muted .cell{background:transparent; cursor:default}
 .adcal-day.muted .dn{color:var(--ink-3); opacity:.4}
-.adcal-day:not(.muted):not(.empty) .cell:active{transform:scale(.93)}
+.adcal-day:not(.muted) .cell:active{transform:scale(.93)}
 .adcal-day.sel .cell{border-color:var(--accent); box-shadow:0 0 0 3px rgba(255,122,69,.22)}
 .adcal-day.blk-all .cell{background:var(--danger-soft)} .adcal-day.blk-all .dn{color:var(--danger)}
 .adcal-day.blk-all .mk{background:var(--danger)}
@@ -810,7 +809,6 @@ function renderAdminCalendar(){
 
   const lead = firstWeekday(ym), total = daysInMonth(ym);
   let html = '';
-  for (let i=0;i<lead;i++) html += '<div class="adcal-day empty"></div>';
   for (let d=1; d<=total; d++){
     const ymd = ym+'-'+String(d).padStart(2,'0');
     const muted = (ymd < today) || (recActive && (ymd < rec.start || ymd > rec.end));
@@ -820,8 +818,9 @@ function renderAdminCalendar(){
     if (state.adSelected === ymd) cls += ' sel';
     if (bd && bd.mode==='all') cls += ' blk-all';
     else if (bd && bd.mode==='classes') cls += ' blk-some';
+    const colStart = (d===1 && lead>0) ? ' style="grid-column-start:'+(lead+1)+'"' : '';
     const oc = muted ? '' : ' onclick="openDateEditor(\''+ymd+'\')"';
-    html += '<div class="'+cls+'"'+oc+'><div class="cell"><span class="dn">'+d+'</span><span class="mk"></span></div></div>';
+    html += '<div class="'+cls+'"'+colStart+oc+'><div class="cell"><span class="dn">'+d+'</span><span class="mk"></span></div></div>';
   }
   grid.innerHTML = html;
 }
