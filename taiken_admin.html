@@ -268,6 +268,69 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
   .crow .cmain{flex:1 1 100%; order:-1}
   .bk-actions select,.bk-actions input{flex:1 1 100%}
 }
+
+/* ---- v2: フォーム項目エディタ ---- */
+.fitem{border:1px solid var(--line); border-radius:var(--r-sm); padding:12px; margin-bottom:10px;
+  background:var(--surface-3)}
+.fitem.on{background:var(--surface); border-color:var(--line-2)}
+.fhead{display:flex; align-items:center; gap:8px}
+.fhead .flabel{flex:1; padding:8px 10px; border:1px solid var(--line-2); border-radius:var(--r-xs);
+  font-size:14px; font-weight:600; background:var(--surface)}
+.fmove{display:flex; flex-direction:column; gap:2px}
+.fmove button{width:22px; height:16px; line-height:1; border:1px solid var(--line-2); background:var(--surface);
+  border-radius:4px; font-size:9px; color:var(--ink-2); cursor:pointer; padding:0}
+.fmove button:active{background:var(--surface-2)}
+.fmeta{font-size:11.5px; color:var(--ink-3); margin:7px 0 9px}
+.fmeta code{font-family:var(--num); background:var(--surface-2); padding:1px 6px; border-radius:5px; color:var(--ink-2)}
+.fopts{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px}
+.fchk{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-2); cursor:pointer}
+.fchk input{width:16px; height:16px; accent-color:var(--accent)}
+.fitem .field{margin-bottom:8px}
+.fitem .field>label{font-size:11.5px}
+.fitem textarea{min-height:70px}
+.addfield{border:1px dashed var(--line-2); border-radius:var(--r-sm); padding:13px; background:var(--surface-3)}
+
+/* ---- v2: 通知設定 ---- */
+.gitem{display:flex; align-items:center; gap:10px; border:1px solid var(--line); border-radius:var(--r-sm);
+  padding:11px 12px; margin-bottom:8px; background:var(--surface)}
+.gitem .gmain{flex:1; min-width:0}
+.gitem .gname{font-weight:600; font-size:14px}
+.gitem .gid{font-family:var(--num); font-size:10.5px; color:var(--ink-3); word-break:break-all}
+.gitem .gcnt{font-family:var(--num); font-size:11px; color:var(--warn); font-weight:600}
+.matrix{width:100%; border-collapse:collapse; font-size:13px}
+.matrix th,.matrix td{border-bottom:1px solid var(--line); padding:9px 6px; text-align:center}
+.matrix th:first-child,.matrix td:first-child{text-align:left; font-weight:600}
+.matrix thead th{font-size:11.5px; color:var(--ink-2); font-weight:600}
+.matrix input{width:18px; height:18px; accent-color:var(--accent)}
+.hintbox{background:var(--blue-soft); border-radius:var(--r-sm); padding:11px 13px; font-size:12.5px;
+  color:var(--ink-2); line-height:1.75; margin-top:10px}
+.hintbox code{font-family:var(--num); background:rgba(255,255,255,.75); padding:1px 5px; border-radius:4px; color:var(--accent-deep)}
+.usage{display:flex; align-items:baseline; gap:8px; margin-bottom:6px}
+.usage b{font-family:var(--num); font-size:26px; font-weight:700}
+.usage span{font-size:12px; color:var(--ink-2)}
+.trg{font-size:12.5px; padding:9px 12px; border-radius:var(--r-sm); margin-top:10px}
+.trg.on{background:var(--ok-soft); color:#12603c}
+.trg.off{background:var(--surface-2); color:var(--ink-2)}
+.tpl{border:1px solid var(--line); border-radius:var(--r-sm); padding:12px; margin-bottom:10px; background:var(--surface)}
+.tpl .tt{font-weight:700; font-size:13.5px; margin-bottom:2px}
+.tpl .td{font-size:11.5px; color:var(--ink-3); margin-bottom:8px}
+.tpl textarea{min-height:96px; font-size:13px; line-height:1.7}
+.pv{white-space:pre-wrap; background:var(--surface-2); border-radius:var(--r-sm); padding:12px;
+  font-size:13px; line-height:1.75; margin-top:10px}
+.timesel{display:flex; align-items:center; gap:6px}
+.timesel select{width:auto; min-width:76px}
+
+/* ---- v2: 予約の編集 ---- */
+.bk-edit{margin-top:12px; border-top:1px dashed var(--line-2); padding-top:12px}
+.bk-edit .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.bk-edit .field{margin-bottom:9px}
+.bk-edit .field>label{font-size:11.5px}
+.bk-edit .btns{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
+.bk-edit .btns .btn{flex:1 1 auto}
+.warnbox{background:var(--warn-soft); border-radius:var(--r-sm); padding:10px 12px; font-size:12.5px;
+  color:#7a4d09; margin-bottom:10px}
+@media(max-width:560px){ .bk-edit .row2{grid-template-columns:1fr} }
+
 </style>
 </head>
 <body>
@@ -301,6 +364,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
     <button class="tab" data-tab="classes" onclick="switchTab('classes')"><span class="ti">02</span>クラス公開</button>
     <button class="tab" data-tab="blocked" onclick="switchTab('blocked')"><span class="ti">03</span>不可期間</button>
     <button class="tab" data-tab="bookings" onclick="switchTab('bookings')"><span class="ti">04</span>予約一覧<span class="badge hide" id="bkBadge">0</span></button>
+    <button class="tab" data-tab="form" onclick="switchTab('form')"><span class="ti">05</span>フォーム項目</button>
+    <button class="tab" data-tab="notify" onclick="switchTab('notify')"><span class="ti">06</span>通知・文言</button>
   </div>
 
   <!-- ---- 01 受付設定 ---- -->
@@ -465,12 +530,193 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
             <option value="cancelled">キャンセル</option>
           </select>
         </div>
+        <div class="field" style="flex:1 1 160px"><label>キーワード</label><input type="text" id="fQ" placeholder="名前・電話・クラス"></div>
         <button class="btn btn-primary btn-sm" onclick="loadBookings()">絞り込み</button>
         <button class="btn btn-ghost btn-sm" onclick="clearFilter()">クリア</button>
       </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="openNewBooking()">＋ 手動で予約を追加</button>
+      <div id="newBookingBox"></div>
     </div>
     <div id="bookingList">
       <div class="empty"><span class="ico">📋</span>「絞り込み」を押すと予約を読み込みます</div>
+    </div>
+  </div>
+
+  <!-- ---- 05 フォーム項目 ---- -->
+  <div class="panel" id="panel-form">
+    <div class="card">
+      <span class="eyebrow">Form fields</span>
+      <h2>申込フォームの入力項目</h2>
+      <p class="desc">申込画面に表示する項目を編集します。<b>お名前と電話番号は必須固定</b>です。追加した項目は <code>trial_bookings</code> シートに列が自動で作られます。</p>
+      <div id="fieldList"></div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">Add field</span>
+      <h2>項目を追加</h2>
+      <div class="addfield">
+        <div class="row">
+          <div class="field">
+            <label>項目名 <span class="sub">申込画面に出る名前</span></label>
+            <input type="text" id="nfLabel" placeholder="例）シューズの貸出">
+          </div>
+          <div class="field">
+            <label>種類</label>
+            <select id="nfType" onchange="onNewFieldType()"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>データ名（キー） <span class="sub">半角英数字とアンダースコアのみ・後から変更不可</span></label>
+          <input type="text" id="nfKey" placeholder="例）f_shoes">
+        </div>
+        <div class="field hide" id="nfOptWrap">
+          <label>選択肢 <span class="sub">1行に1つ</span></label>
+          <textarea id="nfOpts" rows="4" placeholder="希望する&#10;不要"></textarea>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="addField()">＋ この項目を追加</button>
+      </div>
+      <div class="hintbox">
+        キーは列名になります。追加後は <b>「フォーム項目を保存」</b> を押すと列が作られます。項目を「表示しない」に切り替えても、これまでに集めたデータは消えません。
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <button class="btn btn-primary btn-block" onclick="saveSettings('フォーム項目')">フォーム項目を保存</button>
+    </div>
+  </div>
+
+  <!-- ---- 06 通知・文言 ---- -->
+  <div class="panel" id="panel-notify">
+    <div class="card">
+      <span class="eyebrow">Recipients</span>
+      <h2>通知の宛先</h2>
+
+      <div class="field">
+        <label class="toggle">
+          <input type="checkbox" id="nfAdminOn">
+          <span class="track"></span>
+          <span class="tl">管理者へ通知する<small>下が空欄のときは、スクリプトに登録済みの管理者IDへ送ります</small></span>
+        </label>
+      </div>
+      <div class="field">
+        <label>管理者のLINEユーザーID <span class="sub">1行に1つ・Uで始まる文字列</span></label>
+        <textarea id="nfAdminIds" rows="3" placeholder="U0123456789abcdef0123456789abcdef"></textarea>
+      </div>
+
+      <div class="field" style="margin-top:18px">
+        <label class="toggle">
+          <input type="checkbox" id="nfGroupOn">
+          <span class="track"></span>
+          <span class="tl">スタッフのLINEグループへ通知する<small>公式アカウントをグループに招待しておく必要があります</small></span>
+        </label>
+      </div>
+      <div id="groupList"></div>
+
+      <div class="addfield" style="margin-top:10px">
+        <span class="eyebrow">グループを追加</span>
+        <div class="field" style="margin-top:8px">
+          <label>グループID <span class="sub">Cで始まる文字列</span></label>
+          <input type="text" id="ngId" placeholder="C0123456789abcdef0123456789abcdef">
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="addGroup()">＋ 照会して追加</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadWebhookLog()">🔍 受信ログから探す</button>
+        </div>
+        <div id="whLog"></div>
+      </div>
+
+      <div class="hintbox">
+        <b>グループIDの取り方</b><br>
+        1. 公式アカウントマネージャーで「グループ・複数人トークへの参加」を許可<br>
+        2. スタッフグループに公式アカウントを招待<br>
+        3. LINE DevelopersのWebhook URLを<b>一時的に</b>このシステムのURLへ変更<br>
+        4. グループで誰かが一言発言 → 上の「受信ログから探す」を押す<br>
+        5. <b>Webhook URLを元に戻す</b>（他システムで使用中のため必須）
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">Events</span>
+      <h2>どの出来事を誰に送るか</h2>
+      <p class="desc">グループ送信は<b>参加人数分</b>の通数を消費します。人数の多いグループはオフにするか、管理者個人へ寄せてください。</p>
+      <table class="matrix">
+        <thead><tr><th>出来事</th><th>管理者</th><th>グループ</th><th>申込者</th></tr></thead>
+        <tbody>
+          <tr><td>新規の申込</td>
+            <td><input type="checkbox" id="evNewAdmin"></td>
+            <td><input type="checkbox" id="evNewGroup"></td>
+            <td><input type="checkbox" id="evNewUser" disabled title="受付設定タブの「本人にもLINEで確認通知を送る」で切り替えます"></td></tr>
+          <tr><td>キャンセル</td>
+            <td><input type="checkbox" id="evCanAdmin"></td>
+            <td><input type="checkbox" id="evCanGroup"></td>
+            <td><input type="checkbox" id="evCanUser"></td></tr>
+          <tr><td>当日まとめ</td>
+            <td><input type="checkbox" id="evRemAdmin"></td>
+            <td><input type="checkbox" id="evRemGroup"></td>
+            <td><input type="checkbox" id="evRemUser"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">Daily reminder</span>
+      <h2>当日朝のリマインド</h2>
+      <div class="field">
+        <label class="toggle">
+          <input type="checkbox" id="rmEnabled">
+          <span class="track"></span>
+          <span class="tl">当日朝の自動通知を有効にする<small>保存すると実行トリガーが作り直されます</small></span>
+        </label>
+      </div>
+      <div class="field">
+        <label>送信時刻 <span class="sub">実際の送信は指定時刻から±15〜30分ずれます</span></label>
+        <div class="timesel">
+          <select id="rmHour"></select><span>時</span>
+          <select id="rmMinute"></select><span>分ごろ</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="toggle">
+          <input type="checkbox" id="rmSkipEmpty">
+          <span class="track"></span>
+          <span class="tl">体験者が0名の日は送らない<small>通数の節約になります。オフにすると「本日はありません」と毎日届きます</small></span>
+        </label>
+      </div>
+      <div id="trgState" class="trg off">トリガーの状態を確認中…</div>
+      <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="previewReminder()">👀 本日分をプレビュー</button>
+        <button class="btn btn-ghost btn-sm" onclick="runReminderNow()">▶️ 今すぐ送信</button>
+      </div>
+      <div id="rmPreview"></div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">Message templates</span>
+      <h2>通知と画面の文言</h2>
+      <p class="desc">差し込み変数が使えます。値が空の行は自動的に消えるので、未入力の項目があっても崩れません。</p>
+      <div class="hintbox" style="margin-bottom:14px">
+        使える変数：<code>{{name}}</code> <code>{{kana}}</code> <code>{{age}}</code> <code>{{phone}}</code>
+        <code>{{date}}</code> <code>{{weekday}}</code> <code>{{time}}</code> <code>{{class}}</code>
+        <code>{{location}}</code> <code>{{instructor}}</code> <code>{{experience}}</code> <code>{{note}}</code>
+        <code>{{bookingId}}</code> <code>{{by}}</code> <code>{{count}}</code><br>
+        <code>[[（{{age}}）]]</code> のように囲むと、中身が空のときはカッコごと消えます。
+      </div>
+      <div id="tplList"></div>
+    </div>
+
+    <div class="card">
+      <span class="eyebrow">Test &amp; usage</span>
+      <h2>テスト送信と通数</h2>
+      <div class="usage"><b id="usageCount">—</b><span>通 / 今月の推定送信数（無料プランは月200通）</span></div>
+      <p class="desc">グループ送信は人数分としてカウントしています。正確な数値はLINE公式アカウントマネージャーをご確認ください。</p>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+        <button class="btn btn-ghost btn-sm" onclick="testNotifyTo('admin')">🔔 管理者へテスト</button>
+        <button class="btn btn-ghost btn-sm" onclick="testNotifyTo('group')">👥 グループへテスト</button>
+      </div>
+    </div>
+
+    <div class="save-bar">
+      <button class="btn btn-primary btn-block" onclick="saveSettings('通知・文言')">通知と文言を保存</button>
     </div>
   </div>
 </div>
@@ -495,7 +741,10 @@ const state = {
   newMode: 'block',
   adMonth: '',      // 日単位停止カレンダーの表示月 'YYYY-MM'
   adSelected: '',   // 選択中の日 'YYYY-MM-DD'
-  busy: false
+  busy: false,
+  bkMap: {},        // booking_id -> 予約レコード（編集用）
+  usage: null,
+  trigger: null
 };
 
 /* ---------- 通信 ---------- */
@@ -580,10 +829,24 @@ function applySettings(res){
   s.blockedWeekdays = s.blockedWeekdays || [];
   s.blockedRanges = s.blockedRanges || [];
   s.blockedDates = (s.blockedDates && typeof s.blockedDates==='object' && !Array.isArray(s.blockedDates)) ? s.blockedDates : {};
+  s.formSchema = Array.isArray(s.formSchema) ? s.formSchema : [];
+  s.texts = s.texts || {};
+  s.notify = s.notify || {};
+  s.notify.admin = s.notify.admin || { enabled:true, userIds:[] };
+  s.notify.group = s.notify.group || { enabled:false, items:[] };
+  s.notify.onNewBooking = s.notify.onNewBooking || { admin:true, group:true };
+  s.notify.onCancel = s.notify.onCancel || { admin:true, group:true, user:false };
+  s.notify.reminder = s.notify.reminder || { enabled:false, hour:8, minute:0, user:true, admin:false, group:true, skipIfEmpty:true };
+
+  if (res.usage) state.usage = res.usage;
+  if (res.reminderTrigger) state.trigger = res.reminderTrigger;
 
   renderReception();
   renderClasses();
   renderBlocked();
+  renderFormSchema();
+  renderNotify();
+  renderTexts();
 }
 
 /* ---------- 01 受付設定 ---------- */
@@ -962,6 +1225,12 @@ function collectSettings(){
     }
   });
 
+  // 05 フォーム項目
+  collectFormSchema();
+  // 06 通知・文言
+  collectNotify();
+  collectTexts();
+
   return s;
 }
 
@@ -974,8 +1243,11 @@ async function saveSettings(label){
     const settings = collectSettings();
     const res = await apiPost('adminSaveSettings', { settings });
     if (res && res.ok){
-      applySettings({ settings: res.settings, classes: state.classes });
-      toast((label||'設定') + 'を保存しました', 'ok');
+      applySettings({ settings: res.settings, classes: state.classes,
+                      usage: state.usage, reminderTrigger: res.reminderTrigger });
+      if (res.columnError) toast('保存しましたが列の追加に失敗：' + res.columnError, 'err');
+      else if (res.triggerResult && res.triggerResult.message) toast((label||'設定')+'を保存しました（'+res.triggerResult.message+'）', 'ok');
+      else toast((label||'設定') + 'を保存しました', 'ok');
     } else {
       toast('保存に失敗しました：' + (res && res.error || '不明なエラー'), 'err');
     }
@@ -1009,8 +1281,9 @@ async function loadBookings(){
   const from = document.getElementById('fFrom').value || '';
   const to = document.getElementById('fTo').value || '';
   const status = document.getElementById('fStatus').value || '';
+  const q = (document.getElementById('fQ').value || '').trim();
   try{
-    const res = await apiPost('adminListBookings', { from, to, status });
+    const res = await apiPost('adminListBookings', { from, to, status, q });
     if (!res || !res.ok){ list.innerHTML = '<div class="empty"><span class="ico">⚠️</span>取得に失敗しました</div>'; return; }
     renderBookings(res.bookings || []);
     const badge = document.getElementById('bkBadge');
@@ -1028,7 +1301,9 @@ function renderBookings(rows){
     return;
   }
   list.innerHTML = '';
+  state.bkMap = {};
   rows.forEach(b=>{
+    state.bkMap[b.booking_id] = b;
     const st = String(b.status||'pending');
     const card = document.createElement('div');
     card.className = 'bk';
@@ -1063,7 +1338,9 @@ function renderBookings(rows){
         '</select>'+
         '<input type="text" data-note="'+esc(b.booking_id)+'" placeholder="管理メモ（任意）" value="'+esc(adminNote)+'">'+
         '<button class="btn btn-ghost btn-sm" onclick="updateBooking(\''+esc(b.booking_id)+'\', this)">更新</button>'+
-      '</div>';
+        '<button class="btn btn-ghost btn-sm" onclick="editBooking(\''+esc(b.booking_id)+'\')">✏️ 編集</button>'+
+      '</div>'+
+      '<div class="bk-editwrap" data-edit="'+esc(b.booking_id)+'"></div>';
     list.appendChild(card);
   });
 }
@@ -1098,7 +1375,592 @@ function clearFilter(){
   document.getElementById('fFrom').value = '';
   document.getElementById('fTo').value = '';
   document.getElementById('fStatus').value = '';
+  document.getElementById('fQ').value = '';
   loadBookings();
+}
+
+
+/* ============================================================
+   v2 追加：フォーム項目 / 通知・文言 / 予約の全項目編集
+   ============================================================ */
+const FIELD_TYPES = [
+  ['text','1行テキスト'], ['textarea','複数行テキスト'], ['tel','電話番号'], ['email','メールアドレス'],
+  ['number','数値'], ['date','日付'], ['select','プルダウン'], ['radio','ラジオ（1つ選択）'],
+  ['checkbox','チェックボックス（複数可）']
+];
+const NEEDS_OPTIONS = ['select','radio','checkbox'];
+const TEXT_DEFS = [
+  ['userConfirm',   '申込者：予約完了',        '申込直後に公式LINEから届きます'],
+  ['userReminder',  '申込者：当日リマインド',  '体験日の朝に自動送信されます'],
+  ['userChanged',   '申込者：日程変更',        '管理画面で日程やクラスを変更したとき'],
+  ['userCancelled', '申込者：キャンセル受付',  'キャンセル時に本人へ送る場合の文面'],
+  ['adminNew',      '管理者：新規申込',        ''],
+  ['staffNew',      'グループ：新規申込',      '短めにしておくとグループが荒れません'],
+  ['adminCancel',   '管理者：キャンセル',      ''],
+  ['staffCancel',   'グループ：キャンセル',    ''],
+  ['staffReminderHeader', '当日まとめの見出し', 'この下に体験者の一覧が自動で並びます'],
+  ['staffReminderEmpty',  '当日まとめ（0名の日）', '「0名の日は送らない」がオフのときだけ使われます'],
+  ['closedMessage', '申込画面：受付停止中',    ''],
+  ['doneTitle',     '申込画面：完了の見出し',  ''],
+  ['doneMessage',   '申込画面：完了の本文',    '']
+];
+
+function typeLabel(t){
+  const f = FIELD_TYPES.filter(x=>x[0]===t)[0];
+  return f ? f[1] : t;
+}
+function q1(attr, i){ return document.querySelector('['+attr+'="'+i+'"]'); }
+
+/* ---------- 05 フォーム項目 ---------- */
+function renderFormSchema(){
+  const box = document.getElementById('fieldList');
+  if (!box) return;
+  const arr = state.settings.formSchema || [];
+  const sel = document.getElementById('nfType');
+  if (sel && !sel.options.length){
+    sel.innerHTML = FIELD_TYPES.map(t=>'<option value="'+t[0]+'">'+t[1]+'</option>').join('');
+  }
+  if (!arr.length){
+    box.innerHTML = '<div class="empty"><span class="ico">📝</span>項目がありません（保存すると標準項目が復元されます）</div>';
+    return;
+  }
+  box.innerHTML = '';
+  arr.forEach((f, i)=>{
+    const needOpts = NEEDS_OPTIONS.indexOf(f.type) >= 0;
+    const row = document.createElement('div');
+    row.className = 'fitem' + (f.enabled ? ' on' : '');
+    row.innerHTML =
+      '<div class="fhead">'+
+        '<div class="fmove">'+
+          '<button type="button" onclick="moveField('+i+',-1)" title="上へ">▲</button>'+
+          '<button type="button" onclick="moveField('+i+',1)" title="下へ">▼</button>'+
+        '</div>'+
+        '<input type="text" class="flabel" data-flabel="'+i+'" value="'+esc(f.label||'')+'" placeholder="項目名">'+
+        (f.locked ? '<span class="pill">標準</span>'
+                  : '<button class="del-x" onclick="removeField('+i+')" title="削除">×</button>')+
+      '</div>'+
+      '<div class="fmeta"><code>'+esc(f.key)+'</code> ・ '+esc(typeLabel(f.type))+
+        (f.alwaysOn ? ' ・ <b>必須固定</b>' : '')+'</div>'+
+      '<div class="fopts">'+
+        '<label class="fchk"><input type="checkbox" data-fen="'+i+'" '+(f.enabled?'checked':'')+
+          (f.alwaysOn?' disabled':'')+' onchange="this.closest(\'.fitem\').classList.toggle(\'on\', this.checked)"> 表示する</label>'+
+        '<label class="fchk"><input type="checkbox" data-freq="'+i+'" '+(f.required?'checked':'')+
+          (f.alwaysOn?' disabled':'')+'> 必須にする</label>'+
+      '</div>'+
+      '<div class="field"><label>入力例（プレースホルダ）</label>'+
+        '<input type="text" data-fph="'+i+'" value="'+esc(f.placeholder||'')+'"></div>'+
+      '<div class="field"><label>補足説明 <span class="sub">項目の下に小さく表示</span></label>'+
+        '<input type="text" data-fhelp="'+i+'" value="'+esc(f.help||'')+'"></div>'+
+      (needOpts
+        ? '<div class="field"><label>選択肢 <span class="sub">1行に1つ</span></label>'+
+          '<textarea data-fopt="'+i+'" rows="4">'+esc((f.options||[]).join('\n'))+'</textarea></div>'
+        : '');
+    box.appendChild(row);
+  });
+}
+
+function collectFormSchema(){
+  const arr = state.settings.formSchema || [];
+  if (!document.querySelector('#fieldList [data-flabel]')) return arr;   // 未描画なら触らない
+  arr.forEach((f, i)=>{
+    const lab = q1('data-flabel', i);   if (lab) f.label = lab.value.trim() || f.label;
+    const en  = q1('data-fen', i);      if (en && !f.alwaysOn) f.enabled = en.checked;
+    const rq  = q1('data-freq', i);     if (rq && !f.alwaysOn) f.required = rq.checked;
+    const ph  = q1('data-fph', i);      if (ph) f.placeholder = ph.value;
+    const hp  = q1('data-fhelp', i);    if (hp) f.help = hp.value;
+    const op  = q1('data-fopt', i);
+    if (op) f.options = op.value.split('\n').map(x=>x.trim()).filter(Boolean);
+  });
+  return arr;
+}
+
+function moveField(i, d){
+  collectFormSchema();
+  const arr = state.settings.formSchema;
+  const j = i + d;
+  if (j < 0 || j >= arr.length) return;
+  const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  renderFormSchema();
+}
+
+function removeField(i){
+  collectFormSchema();
+  const f = state.settings.formSchema[i];
+  if (!f) return;
+  if (!confirm('「'+f.label+'」を削除します。\n\nシートの列と過去データは残りますが、申込フォームには表示されなくなります。よろしいですか？')) return;
+  state.settings.formSchema.splice(i, 1);
+  renderFormSchema();
+  toast('削除しました（「フォーム項目を保存」で確定）', 'ok');
+}
+
+function onNewFieldType(){
+  const t = document.getElementById('nfType').value;
+  document.getElementById('nfOptWrap').classList.toggle('hide', NEEDS_OPTIONS.indexOf(t) < 0);
+}
+
+function addField(){
+  collectFormSchema();
+  const label = document.getElementById('nfLabel').value.trim();
+  const key   = document.getElementById('nfKey').value.trim();
+  const type  = document.getElementById('nfType').value;
+  const opts  = document.getElementById('nfOpts').value.split('\n').map(x=>x.trim()).filter(Boolean);
+
+  if (!label){ toast('項目名を入力してください', 'err'); return; }
+  if (!/^[A-Za-z][A-Za-z0-9_]{0,29}$/.test(key)){
+    toast('キーは半角英字で始まる英数字・アンダースコアにしてください', 'err'); return;
+  }
+  if ((state.settings.formSchema||[]).some(f=>f.key === key)){
+    toast('そのキーは既に使われています', 'err'); return;
+  }
+  if (NEEDS_OPTIONS.indexOf(type) >= 0 && !opts.length){
+    toast('選択肢を1つ以上入力してください', 'err'); return;
+  }
+
+  state.settings.formSchema.push({
+    key: key, label: label, type: type, required: false, enabled: true,
+    locked: false, alwaysOn: false, placeholder: '', help: '', options: opts, maxLength: 200
+  });
+  document.getElementById('nfLabel').value = '';
+  document.getElementById('nfKey').value = '';
+  document.getElementById('nfOpts').value = '';
+  renderFormSchema();
+  toast('追加しました（「フォーム項目を保存」で列が作られます）', 'ok');
+}
+
+/* ---------- 06 通知 ---------- */
+function renderNotify(){
+  const n = state.settings.notify;
+  if (!document.getElementById('nfAdminOn')) return;
+
+  document.getElementById('nfAdminOn').checked = !!n.admin.enabled;
+  document.getElementById('nfAdminIds').value = (n.admin.userIds||[]).join('\n');
+  document.getElementById('nfGroupOn').checked = !!n.group.enabled;
+
+  document.getElementById('evNewAdmin').checked = !!n.onNewBooking.admin;
+  document.getElementById('evNewGroup').checked = !!n.onNewBooking.group;
+  document.getElementById('evNewUser').checked  = !!state.settings.notifyUser;
+  document.getElementById('evCanAdmin').checked = !!n.onCancel.admin;
+  document.getElementById('evCanGroup').checked = !!n.onCancel.group;
+  document.getElementById('evCanUser').checked  = !!n.onCancel.user;
+  document.getElementById('evRemAdmin').checked = !!n.reminder.admin;
+  document.getElementById('evRemGroup').checked = !!n.reminder.group;
+  document.getElementById('evRemUser').checked  = !!n.reminder.user;
+
+  document.getElementById('rmEnabled').checked = !!n.reminder.enabled;
+  document.getElementById('rmSkipEmpty').checked = !!n.reminder.skipIfEmpty;
+
+  const hs = document.getElementById('rmHour');
+  if (!hs.options.length){
+    let h = '';
+    for (let i=0;i<24;i++) h += '<option value="'+i+'">'+String(i).padStart(2,'0')+'</option>';
+    hs.innerHTML = h;
+    let m = '';
+    [0,15,30,45].forEach(v=>{ m += '<option value="'+v+'">'+String(v).padStart(2,'0')+'</option>'; });
+    document.getElementById('rmMinute').innerHTML = m;
+  }
+  hs.value = String(n.reminder.hour != null ? n.reminder.hour : 8);
+  document.getElementById('rmMinute').value = String(n.reminder.minute != null ? n.reminder.minute : 0);
+
+  renderGroups();
+  renderTriggerState();
+  renderUsage();
+}
+
+function renderGroups(){
+  const box = document.getElementById('groupList');
+  const items = state.settings.notify.group.items || [];
+  if (!items.length){
+    box.innerHTML = '<div class="empty" style="padding:16px"><span class="ico">👥</span>登録されたグループはありません</div>';
+    return;
+  }
+  box.innerHTML = items.map((g, i)=>
+    '<div class="gitem">'+
+      '<div class="gmain">'+
+        '<div class="gname">'+esc(g.label || '（名称未取得）')+'</div>'+
+        '<div class="gid">'+esc(g.id)+'</div>'+
+        (g.memberCount ? '<div class="gcnt">1回の送信で '+g.memberCount+' 通を消費</div>' : '')+
+      '</div>'+
+      '<label class="toggle"><input type="checkbox" data-gen="'+i+'" '+(g.enabled?'checked':'')+'><span class="track"></span></label>'+
+      '<button class="del-x" onclick="removeGroup('+i+')" title="削除">×</button>'+
+    '</div>'
+  ).join('');
+}
+
+function renderTriggerState(){
+  const el = document.getElementById('trgState');
+  const t = state.trigger;
+  const n = state.settings.notify.reminder;
+  if (t && t.installed){
+    el.className = 'trg on';
+    el.textContent = '✅ トリガー稼働中：毎日 ' + String(n.hour).padStart(2,'0') + ':' + String(n.minute).padStart(2,'0') + ' ごろに実行されます';
+  } else {
+    el.className = 'trg off';
+    el.textContent = '⏸ トリガー未作成：上のスイッチをオンにして保存すると作成されます';
+  }
+}
+
+function renderUsage(){
+  const el = document.getElementById('usageCount');
+  if (el) el.textContent = state.usage ? String(state.usage.count) : '—';
+}
+
+function collectNotify(){
+  if (!document.getElementById('nfAdminOn')) return;
+  const n = state.settings.notify;
+
+  n.admin.enabled = document.getElementById('nfAdminOn').checked;
+  n.admin.userIds = document.getElementById('nfAdminIds').value
+    .split('\n').map(x=>x.trim()).filter(Boolean);
+  n.group.enabled = document.getElementById('nfGroupOn').checked;
+  (n.group.items||[]).forEach((g,i)=>{
+    const cb = q1('data-gen', i);
+    if (cb) g.enabled = cb.checked;
+  });
+
+  n.onNewBooking.admin = document.getElementById('evNewAdmin').checked;
+  n.onNewBooking.group = document.getElementById('evNewGroup').checked;
+  n.onCancel.admin = document.getElementById('evCanAdmin').checked;
+  n.onCancel.group = document.getElementById('evCanGroup').checked;
+  n.onCancel.user  = document.getElementById('evCanUser').checked;
+  n.reminder.admin = document.getElementById('evRemAdmin').checked;
+  n.reminder.group = document.getElementById('evRemGroup').checked;
+  n.reminder.user  = document.getElementById('evRemUser').checked;
+
+  n.reminder.enabled = document.getElementById('rmEnabled').checked;
+  n.reminder.hour = parseInt(document.getElementById('rmHour').value, 10) || 0;
+  n.reminder.minute = parseInt(document.getElementById('rmMinute').value, 10) || 0;
+  n.reminder.skipIfEmpty = document.getElementById('rmSkipEmpty').checked;
+}
+
+async function addGroup(){
+  const inp = document.getElementById('ngId');
+  const gid = inp.value.trim();
+  if (!/^C[0-9a-fA-F]{20,}$/.test(gid)){ toast('Cで始まるグループIDを入力してください', 'err'); return; }
+  if ((state.settings.notify.group.items||[]).some(g=>g.id === gid)){ toast('既に登録済みです', 'err'); return; }
+
+  collectNotify();
+  toast('LINEに照会しています…');
+  let res;
+  try{ res = await apiPost('adminResolveGroup', { groupId: gid }); }
+  catch(e){ toast('通信エラーが発生しました', 'err'); return; }
+
+  if (!res || !res.ok){
+    const why = (res && res.error === 'not_joined')
+      ? '公式アカウントがそのグループに参加していません'
+      : (res && res.error === 'bad_group_id') ? 'グループIDの形式が正しくありません' : (res && res.error || '不明なエラー');
+    toast('照会に失敗：' + why, 'err');
+    return;
+  }
+  state.settings.notify.group.items.push({
+    id: gid, label: res.name || '', memberCount: res.memberCount || 0, enabled: true
+  });
+  state.settings.notify.group.enabled = true;
+  inp.value = '';
+  renderNotify();
+  toast('「'+(res.name||gid.slice(0,10)+'…')+'」を追加しました（保存で確定）', 'ok');
+}
+
+function removeGroup(i){
+  collectNotify();
+  const g = state.settings.notify.group.items[i];
+  if (!g) return;
+  if (!confirm('「'+(g.label||g.id)+'」を通知先から外しますか？')) return;
+  state.settings.notify.group.items.splice(i, 1);
+  renderNotify();
+  toast('削除しました（保存で確定）', 'ok');
+}
+
+async function loadWebhookLog(){
+  const box = document.getElementById('whLog');
+  box.innerHTML = '<div class="loading"><span class="spin"></span>受信ログを確認中…</div>';
+  let res;
+  try{ res = await apiPost('adminWebhookLog'); }
+  catch(e){ box.innerHTML = '<div class="hintbox">通信エラーが発生しました</div>'; return; }
+
+  const rows = (res && res.rows || []).filter(r=>r.type === 'group');
+  if (!rows.length){
+    box.innerHTML = '<div class="hintbox">グループからの受信記録がありません。<br>'+
+      'Webhook URLをこのシステムに向けた状態で、グループ内で何か発言してから再度お試しください。</div>';
+    return;
+  }
+  box.innerHTML = '<div class="hintbox" style="margin-bottom:8px">タップするとIDが入力欄に入ります</div>' +
+    rows.map(r=>
+      '<div class="gitem" style="cursor:pointer" onclick="pickGroupId(\''+esc(r.id)+'\')">'+
+        '<div class="gmain"><div class="gname">'+esc(r.at)+' の受信</div>'+
+        '<div class="gid">'+esc(r.id)+'</div></div>'+
+        '<span style="color:var(--ink-3);font-size:18px">›</span></div>'
+    ).join('') +
+    '<button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="clearWebhookLog()">受信ログを削除</button>';
+}
+
+function pickGroupId(id){
+  document.getElementById('ngId').value = id;
+  document.getElementById('whLog').innerHTML = '';
+  toast('IDを入力しました。「照会して追加」を押してください', 'ok');
+}
+
+async function clearWebhookLog(){
+  if (!confirm('受信ログのシートを削除します。よろしいですか？')) return;
+  try{ await apiPost('adminClearWebhookLog'); document.getElementById('whLog').innerHTML = ''; toast('削除しました', 'ok'); }
+  catch(e){ toast('削除に失敗しました', 'err'); }
+}
+
+async function testNotifyTo(target){
+  toast('送信中…');
+  let res;
+  try{ res = await apiPost('adminTestNotify', { target: target }); }
+  catch(e){ toast('通信エラーが発生しました', 'err'); return; }
+  if (!res || !res.ok){ toast('送信に失敗しました', 'err'); return; }
+
+  if (target === 'admin'){
+    if (res.admin && res.admin.ok) toast('管理者LINEへ送信しました', 'ok');
+    else toast('失敗：' + ((res.admin && res.admin.error) === 'no_admin_id' ? '管理者IDが未設定です' : (res.admin && res.admin.error)), 'err');
+  } else {
+    const list = res.group || [];
+    const ng = list.filter(g=>!g.ok);
+    if (!list.length || (ng.length && ng[0].error === 'no_group_id')) toast('グループが登録されていません', 'err');
+    else if (ng.length) toast('一部失敗：' + esc(ng[0].error || ''), 'err');
+    else toast('グループへ送信しました', 'ok');
+  }
+  try{ const u = await apiPost('adminMsgUsage'); if (u && u.ok){ state.usage = u.usage; renderUsage(); } }catch(_){}
+}
+
+async function previewReminder(){
+  const box = document.getElementById('rmPreview');
+  box.innerHTML = '<div class="loading"><span class="spin"></span>作成中…</div>';
+  let res;
+  try{ res = await apiPost('adminPreviewReminder', {}); }
+  catch(e){ box.innerHTML = ''; toast('通信エラーが発生しました', 'err'); return; }
+  if (!res || !res.ok){ box.innerHTML = ''; toast('プレビューに失敗しました', 'err'); return; }
+  box.innerHTML =
+    '<div class="tpl" style="margin-top:12px"><div class="tt">管理者・グループへ（本日 '+res.count+'名）</div>'+
+      '<div class="pv">'+esc(res.staffText)+'</div></div>'+
+    '<div class="tpl"><div class="tt">申込者へ</div><div class="pv">'+esc(res.userText)+'</div></div>';
+}
+
+async function runReminderNow(){
+  if (!confirm('本日分のリマインドを今すぐ送信します。\n\n・実際にLINEが送られます\n・既に送信済みの申込者は自動でスキップされます\n\nよろしいですか？')) return;
+  toast('送信中…');
+  let res;
+  try{ res = await apiPost('adminRunReminderNow', {}); }
+  catch(e){ toast('通信エラーが発生しました', 'err'); return; }
+  if (!res || !res.ok){ toast('送信に失敗しました', 'err'); return; }
+  const msg = '申込者 '+res.userSent+'件送信 / '+res.userSkipped+'件スキップ・スタッフ '+res.staffSent+'件送信';
+  toast(msg, (res.userErrors||[]).length || (res.staffErrors||[]).length ? 'err' : 'ok');
+  try{ const u = await apiPost('adminMsgUsage'); if (u && u.ok){ state.usage = u.usage; renderUsage(); } }catch(_){}
+}
+
+/* ---------- 06 文言テンプレート ---------- */
+function renderTexts(){
+  const box = document.getElementById('tplList');
+  if (!box) return;
+  const t = state.settings.texts || {};
+  box.innerHTML = TEXT_DEFS.map(d=>
+    '<div class="tpl">'+
+      '<div class="tt">'+esc(d[1])+'</div>'+
+      (d[2] ? '<div class="td">'+esc(d[2])+'</div>' : '')+
+      '<textarea data-tpl="'+d[0]+'">'+esc(t[d[0]] || '')+'</textarea>'+
+    '</div>'
+  ).join('');
+}
+
+function collectTexts(){
+  if (!document.querySelector('#tplList [data-tpl]')) return;
+  state.settings.texts = state.settings.texts || {};
+  document.querySelectorAll('#tplList [data-tpl]').forEach(ta=>{
+    state.settings.texts[ta.getAttribute('data-tpl')] = ta.value;
+  });
+}
+
+/* ---------- 04 予約の全項目編集 ---------- */
+function fieldValueOf(b, key){
+  if (b[key] !== undefined && b[key] !== null && b[key] !== '') return b[key];
+  if (b.extras && b.extras[key] !== undefined) return b.extras[key];
+  return '';
+}
+
+function fieldInputHtml(f, val, pre){
+  const id = pre + f.key;
+  const v = (val == null) ? '' : String(val);
+  if (f.type === 'textarea') return '<textarea id="'+id+'" rows="2">'+esc(v)+'</textarea>';
+  if (f.type === 'select' || f.type === 'radio'){
+    return '<select id="'+id+'"><option value="">（未選択）</option>'+
+      (f.options||[]).map(o=>'<option '+(o===v?'selected':'')+'>'+esc(o)+'</option>').join('')+'</select>';
+  }
+  if (f.type === 'checkbox'){
+    return '<input type="text" id="'+id+'" value="'+esc(v)+'" placeholder="'+esc((f.options||[]).join(' / '))+'">';
+  }
+  const t = (f.type==='number') ? 'number' : (f.type==='date') ? 'date'
+          : (f.type==='tel') ? 'tel' : (f.type==='email') ? 'email' : 'text';
+  return '<input type="'+t+'" id="'+id+'" value="'+esc(v)+'">';
+}
+
+function classOptionsHtml(selectedId){
+  return state.classes.map(c=>{
+    const t = (c.start_time||'') + (c.end_time ? '–'+c.end_time : '');
+    const wd = c.weekday ? '['+c.weekday+']' : '';
+    return '<option value="'+esc(c.class_id)+'" '+(String(c.class_id)===String(selectedId)?'selected':'')+'>'+
+      esc(wd+' '+(c.class_name||c.class_id)+' '+t)+'</option>';
+  }).join('');
+}
+
+function editorFieldsHtml(b, pre){
+  return (state.settings.formSchema||[]).filter(f=>f.enabled).map(f=>
+    '<div class="field"><label>'+esc(f.label)+(f.required?' <span class="sub">必須</span>':'')+'</label>'+
+      fieldInputHtml(f, fieldValueOf(b, f.key), pre)+'</div>'
+  ).join('');
+}
+
+function collectEditorFields(pre){
+  const out = {};
+  (state.settings.formSchema||[]).filter(f=>f.enabled).forEach(f=>{
+    const el = document.getElementById(pre + f.key);
+    if (el) out[f.key] = el.value;
+  });
+  return out;
+}
+
+function editBooking(id){
+  const wrap = document.querySelector('[data-edit="'+cssEsc(id)+'"]');
+  if (!wrap) return;
+  if (wrap.innerHTML){ wrap.innerHTML = ''; return; }   // 開いていたら閉じる
+  const b = state.bkMap[id];
+  if (!b){ toast('予約が見つかりません', 'err'); return; }
+  const pre = 'ed_' + id + '_';
+
+  wrap.innerHTML =
+    '<div class="bk-edit">'+
+      '<div class="warnbox">日にちやクラスを変えると<b>振替</b>になります。移動先が満席の場合は保存できません。</div>'+
+      '<div class="row2">'+
+        '<div class="field"><label>日にち</label><input type="date" id="'+pre+'__date" value="'+esc(b.date||'')+'"></div>'+
+        '<div class="field"><label>クラス</label><select id="'+pre+'__class">'+classOptionsHtml(b.class_id)+'</select></div>'+
+      '</div>'+
+      editorFieldsHtml(b, pre)+
+      '<div class="row2">'+
+        '<div class="field"><label>ステータス</label><select id="'+pre+'__status">'+
+          ['pending','confirmed','done','cancelled'].map(v=>
+            '<option value="'+v+'" '+(v===String(b.status)?'selected':'')+'>'+STATUS_LABEL[v]+'</option>').join('')+
+        '</select></div>'+
+        '<div class="field"><label>管理メモ</label><input type="text" id="'+pre+'__note" value="'+esc(b.admin_note||'')+'"></div>'+
+      '</div>'+
+      (b.line_user_id
+        ? '<label class="fchk" style="margin-top:4px"><input type="checkbox" id="'+pre+'__notify"> 変更内容を申込者のLINEへ通知する</label>'
+        : '<div class="fmeta">LINE未連携の申込のため、本人への自動通知はできません</div>')+
+      '<div class="btns">'+
+        '<button class="btn btn-primary btn-sm" onclick="saveBookingEdit(\''+esc(id)+'\', this)">保存する</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="editBooking(\''+esc(id)+'\')">閉じる</button>'+
+        '<button class="btn btn-ghost btn-sm" style="color:var(--danger)" onclick="deleteBookingRow(\''+esc(id)+'\')">行を削除</button>'+
+      '</div>'+
+    '</div>';
+}
+
+async function saveBookingEdit(id, btn){
+  if (state.busy) return;
+  const pre = 'ed_' + id + '_';
+  const notifyEl = document.getElementById(pre+'__notify');
+  const patch = {
+    date: document.getElementById(pre+'__date').value,
+    classId: document.getElementById(pre+'__class').value,
+    status: document.getElementById(pre+'__status').value,
+    adminNote: document.getElementById(pre+'__note').value,
+    fields: collectEditorFields(pre)
+  };
+  state.busy = true;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = '保存中…';
+  let res;
+  try{ res = await apiPost('adminUpdateBookingFull', { bookingId: id, patch: patch, notifyUser: !!(notifyEl && notifyEl.checked) }); }
+  catch(e){ res = null; }
+  state.busy = false;
+  btn.disabled = false; btn.textContent = orig;
+
+  if (res && res.ok){
+    toast(res.cancelled ? 'キャンセルにしました（通知を送信）' : '予約を更新しました', 'ok');
+    loadBookings();
+  } else {
+    const e = res && res.error;
+    const msg = e === 'full' ? '移動先が満席です（定員'+(res.capacity||'')+'名／予約'+(res.booked||'')+'名）'
+      : e === 'no_name' ? 'お名前は空にできません'
+      : e === 'no_phone' ? '電話番号は空にできません'
+      : e === 'class_not_found' ? 'そのクラスが見つかりません'
+      : ('更新に失敗しました：' + (e || '不明'));
+    toast(msg, 'err');
+  }
+}
+
+async function deleteBookingRow(id){
+  if (!confirm('この予約行をシートから完全に削除します。\n\n元に戻せません。キャンセル扱いにしたいだけであれば、ステータスを「キャンセル」にして保存してください。\n\n本当に削除しますか？')) return;
+  let res;
+  try{ res = await apiPost('adminDeleteBooking', { bookingId: id }); }
+  catch(e){ res = null; }
+  if (res && res.ok){ toast('削除しました', 'ok'); loadBookings(); }
+  else toast('削除に失敗しました', 'err');
+}
+
+/* ---------- 04 手動で予約を追加 ---------- */
+function openNewBooking(){
+  const box = document.getElementById('newBookingBox');
+  if (box.innerHTML){ box.innerHTML = ''; return; }
+  if (!state.classes.length){ toast('クラス情報が読み込めていません', 'err'); return; }
+  const pre = 'nb_';
+  const today = new Date();
+  const ymd = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+
+  box.innerHTML =
+    '<div class="bk-edit">'+
+      '<div class="warnbox">電話・DMなどLINE外からの申込を登録します。受付期間や不可設定を無視して登録できます。</div>'+
+      '<div class="row2">'+
+        '<div class="field"><label>日にち</label><input type="date" id="'+pre+'__date" value="'+ymd+'"></div>'+
+        '<div class="field"><label>クラス</label><select id="'+pre+'__class">'+classOptionsHtml('')+'</select></div>'+
+      '</div>'+
+      editorFieldsHtml({}, pre)+
+      '<div class="row2">'+
+        '<div class="field"><label>ステータス</label><select id="'+pre+'__status">'+
+          ['confirmed','pending','done'].map(v=>'<option value="'+v+'">'+STATUS_LABEL[v]+'</option>').join('')+
+        '</select></div>'+
+        '<div class="field"><label>管理メモ</label><input type="text" id="'+pre+'__note" placeholder="例）電話申込"></div>'+
+      '</div>'+
+      '<label class="fchk"><input type="checkbox" id="'+pre+'__cap"> 定員を超えても登録する</label>'+
+      '<label class="fchk"><input type="checkbox" id="'+pre+'__notifyAdmin"> 管理者・グループへ通知する</label>'+
+      '<div class="btns">'+
+        '<button class="btn btn-primary btn-sm" onclick="saveNewBooking(this)">登録する</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="openNewBooking()">閉じる</button>'+
+      '</div>'+
+    '</div>';
+}
+
+async function saveNewBooking(btn){
+  if (state.busy) return;
+  const pre = 'nb_';
+  const payload = {
+    date: document.getElementById(pre+'__date').value,
+    classId: document.getElementById(pre+'__class').value,
+    status: document.getElementById(pre+'__status').value,
+    adminNote: document.getElementById(pre+'__note').value,
+    fields: collectEditorFields(pre),
+    ignoreCapacity: document.getElementById(pre+'__cap').checked,
+    ignoreDateGate: true,
+    notifyAdmin: document.getElementById(pre+'__notifyAdmin').checked
+  };
+  if (!payload.fields.name || !payload.fields.name.trim()){ toast('お名前を入力してください', 'err'); return; }
+
+  state.busy = true;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = '登録中…';
+  let res;
+  try{ res = await apiPost('adminCreateBooking', payload); }
+  catch(e){ res = null; }
+  state.busy = false;
+  btn.disabled = false; btn.textContent = orig;
+
+  if (res && res.ok){
+    document.getElementById('newBookingBox').innerHTML = '';
+    toast('登録しました', 'ok');
+    loadBookings();
+  } else {
+    const e = res && res.error;
+    toast(e === 'full' ? '満席です（「定員を超えても登録する」で強制登録できます）'
+        : e === 'no_name' ? 'お名前を入力してください'
+        : ('登録に失敗しました：' + (e || '不明')), 'err');
+  }
 }
 
 /* ---------- タブ切替 ---------- */
