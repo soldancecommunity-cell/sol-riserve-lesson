@@ -167,6 +167,18 @@ body{
 .formnote{font-size:12.5px; color:var(--ink-2); background:var(--surface-2);
   border-radius:11px; padding:11px 13px; line-height:1.65}
 
+/* ---- v2: 選択式の項目 ---- */
+.optlist{display:flex; flex-direction:column; gap:8px}
+.optitem{display:flex; align-items:center; gap:11px; border:1px solid var(--line-2);
+  border-radius:11px; padding:12px 13px; cursor:pointer; background:var(--surface);
+  font-size:14.5px; transition:border-color .15s, background .15s}
+.optitem input{width:19px; height:19px; flex:none; accent-color:var(--accent); margin:0}
+.optitem.on{border-color:var(--accent); background:var(--accent-soft)}
+.field .err-msg{font-size:11.5px; color:var(--danger); margin-top:5px; display:none}
+.field.has-err input,.field.has-err textarea,.field.has-err select{border-color:var(--danger)}
+.field.has-err .err-msg{display:block}
+.formskel{padding:26px 0; text-align:center}
+
 /* ---- ボタン ---- */
 .btn{width:100%; border:none; border-radius:14px; padding:15px; font-family:var(--font);
   font-size:16px; font-weight:700; cursor:pointer; letter-spacing:.02em; transition:transform .1s, opacity .2s}
@@ -360,35 +372,8 @@ body{
 
       <div id="formNoteBox" class="formnote" style="display:none; margin-top:14px"></div>
 
-      <div class="field">
-        <label>お名前 <span class="req">必須</span></label>
-        <input id="fName" type="text" inputmode="text" placeholder="山田 花子" autocomplete="name">
-      </div>
-      <div class="field">
-        <label>フリガナ <span class="opt">任意</span></label>
-        <input id="fKana" type="text" placeholder="ヤマダ ハナコ">
-      </div>
-      <div class="field">
-        <label>年齢・学年 <span class="opt">任意</span></label>
-        <input id="fAge" type="text" placeholder="例）小学3年 / 25歳">
-        <div class="hint">クラス分けの参考にします。</div>
-      </div>
-      <div class="field">
-        <label>電話番号 <span class="req">必須</span></label>
-        <input id="fPhone" type="tel" inputmode="tel" placeholder="090-1234-5678" autocomplete="tel">
-      </div>
-      <div class="field">
-        <label>ダンス経験 <span class="opt">任意</span></label>
-        <select id="fExp">
-          <option value="">選択してください</option>
-          <option value="初めて">初めて</option>
-          <option value="少し経験あり">少し経験あり</option>
-          <option value="経験者">経験者</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>ご質問・ご要望 <span class="opt">任意</span></label>
-        <textarea id="fNote" placeholder="気になることがあればご記入ください。"></textarea>
+      <div id="dynFields">
+        <div class="formskel"><div class="spinner" style="margin:0 auto"></div></div>
       </div>
 
       <button class="btn btn-primary" id="toConfirm" style="margin-top:20px">予約内容を確認</button>
@@ -415,8 +400,8 @@ body{
         <path d="M37 52 a23 23 0 0 1 46 0 Z" fill="url(#ds)"/>
         <path d="M6 53 H114" stroke="url(#ds)" stroke-width="3" stroke-linecap="round"/>
       </svg>
-      <h2>予約完了しました！</h2>
-      <p>ご不明点、予約の変更などありましたら公式ラインにご連絡ください。</p>
+      <h2 id="doneTitle">予約完了しました！</h2>
+      <p id="doneMessage">ご不明点、予約の変更などありましたら公式ラインにご連絡ください。</p>
     </div>
     <div class="card done-card">
       <div class="confirm-rows" id="doneRows"></div>
@@ -472,6 +457,7 @@ const state = {
   selectedDate: '',
   selectedClass: null,
   classCache: {},         // date -> classes[]
+  fields: [],             // 管理画面で定義されたフォーム項目
   submitting: false
 };
 
@@ -541,6 +527,14 @@ async function boot(){
     }
     if (state.profile.userId){
       document.getElementById('myBookingsBtn').style.display='block';
+    }
+    // 管理画面で定義された入力項目からフォームを生成
+    state.fields = Array.isArray(cfg.fields) ? cfg.fields : [];
+    renderForm();
+    // 完了画面の文言
+    if (cfg.texts){
+      if (cfg.texts.doneTitle)   document.getElementById('doneTitle').textContent = cfg.texts.doneTitle;
+      if (cfg.texts.doneMessage) document.getElementById('doneMessage').textContent = cfg.texts.doneMessage;
     }
     state.viewMonth = ymOf(cfg.rangeStart) >= todayYm() ? ymOf(cfg.rangeStart) : todayYm();
     show('view-select');
@@ -679,26 +673,140 @@ function chooseClass(c){
   show('view-form');
 }
 
+
+/* ---------- 入力フォームの動的生成 ---------- */
+function fieldElId(key){ return 'fld_' + key; }
+
+function renderForm(){
+  const box = document.getElementById('dynFields');
+  const fields = state.fields || [];
+  if (!fields.length){
+    box.innerHTML = '<div class="formnote" style="margin-top:15px">入力項目が設定されていません。お手数ですが公式LINEからお問い合わせください。</div>';
+    document.getElementById('toConfirm').disabled = true;
+    return;
+  }
+  box.innerHTML = fields.map(f=>{
+    const id = fieldElId(f.key);
+    const badge = f.required ? '<span class="req">必須</span>' : '<span class="opt">任意</span>';
+    let input = '';
+
+    if (f.type === 'textarea'){
+      input = '<textarea id="'+id+'" placeholder="'+escapeHtml(f.placeholder||'')+'"></textarea>';
+
+    } else if (f.type === 'select'){
+      input = '<select id="'+id+'"><option value="">選択してください</option>'+
+        (f.options||[]).map(o=>'<option value="'+escapeHtml(o)+'">'+escapeHtml(o)+'</option>').join('')+
+        '</select>';
+
+    } else if (f.type === 'radio' || f.type === 'checkbox'){
+      const t = (f.type === 'radio') ? 'radio' : 'checkbox';
+      input = '<div class="optlist" id="'+id+'">'+
+        (f.options||[]).map((o,i)=>
+          '<label class="optitem"><input type="'+t+'" name="'+id+'" value="'+escapeHtml(o)+'">'+
+          '<span>'+escapeHtml(o)+'</span></label>'
+        ).join('')+'</div>';
+
+    } else {
+      const t = (f.type==='tel') ? 'tel' : (f.type==='email') ? 'email'
+              : (f.type==='number') ? 'number' : (f.type==='date') ? 'date' : 'text';
+      const mode = (f.type==='tel') ? ' inputmode="tel"' : (f.type==='email') ? ' inputmode="email"'
+                 : (f.type==='number') ? ' inputmode="numeric"' : '';
+      const ac = (f.key==='name') ? ' autocomplete="name"' : (f.key==='phone') ? ' autocomplete="tel"' : '';
+      input = '<input id="'+id+'" type="'+t+'"'+mode+ac+' placeholder="'+escapeHtml(f.placeholder||'')+'">';
+    }
+
+    return '<div class="field" data-fld="'+escapeHtml(f.key)+'">'+
+      '<label>'+escapeHtml(f.label)+' '+badge+'</label>'+
+      input +
+      (f.help ? '<div class="hint">'+escapeHtml(f.help)+'</div>' : '')+
+      '<div class="err-msg">入力してください</div>'+
+    '</div>';
+  }).join('');
+
+  // 選択式の見た目を追従させる
+  box.querySelectorAll('.optlist').forEach(list=>{
+    list.addEventListener('change', ()=>{
+      list.querySelectorAll('.optitem').forEach(li=>{
+        const cb = li.querySelector('input');
+        li.classList.toggle('on', !!(cb && cb.checked));
+      });
+      clearFieldError(list.closest('.field'));
+    });
+  });
+  box.querySelectorAll('input,select,textarea').forEach(el=>{
+    el.addEventListener('input', ()=>clearFieldError(el.closest('.field')));
+    el.addEventListener('change', ()=>clearFieldError(el.closest('.field')));
+  });
+}
+
+function clearFieldError(fieldEl){ if (fieldEl) fieldEl.classList.remove('has-err'); }
+
+function readFieldValue(f){
+  const el = document.getElementById(fieldElId(f.key));
+  if (!el) return '';
+  if (f.type === 'radio'){
+    const c = el.querySelector('input:checked');
+    return c ? c.value : '';
+  }
+  if (f.type === 'checkbox'){
+    return Array.from(el.querySelectorAll('input:checked')).map(c=>c.value).join(' / ');
+  }
+  return (el.value || '').trim();
+}
+
+/** 全項目を読み取り、必須チェックを行う */
+function readForm(){
+  const values = {};
+  let firstError = null;
+  document.querySelectorAll('#dynFields .field').forEach(el=>el.classList.remove('has-err'));
+
+  (state.fields||[]).forEach(f=>{
+    const v = readFieldValue(f);
+    values[f.key] = v;
+    if (f.required && !v && !firstError) firstError = f;
+  });
+
+  if (firstError){
+    const wrap = document.querySelector('#dynFields .field[data-fld="'+cssEscape(firstError.key)+'"]');
+    if (wrap){
+      wrap.classList.add('has-err');
+      const msg = wrap.querySelector('.err-msg');
+      if (msg) msg.textContent = firstError.label + 'を入力してください';
+      wrap.scrollIntoView({ behavior:'smooth', block:'center' });
+      const inp = wrap.querySelector('input,select,textarea');
+      if (inp && inp.type !== 'radio' && inp.type !== 'checkbox') { try{ inp.focus({preventScroll:true}); }catch(_){ inp.focus(); } }
+    }
+    return { ok:false, error: firstError.label + 'を入力してください' };
+  }
+  return { ok:true, values: values };
+}
+
+function cssEscape(s){ return String(s).replace(/["\\]/g, '\\$&'); }
+
+/** 確認・完了画面に出す行を組み立てる */
+function summaryRows(values){
+  const d = state.selectedDate, c = state.selectedClass || {};
+  const rows = [['日にち', `${jpDate(d)}（${WD[wdOfYmd(d)]}）`]];
+  const tm = c.start_time ? `  ${c.start_time}${c.end_time?'〜'+c.end_time:''}` : '';
+  rows.push(['クラス', (c.class_name||'') + tm]);
+  if (c.location) rows.push(['場所', c.location]);
+  (state.fields||[]).forEach(f=>{
+    const v = values[f.key];
+    if (v) rows.push([f.label, v]);
+  });
+  return rows;
+}
+
 /* ---------- 確認 → 送信 ---------- */
 document.getElementById('toConfirm').onclick = ()=>{
-  const name = document.getElementById('fName').value.trim();
-  const phone = document.getElementById('fPhone').value.trim();
-  if (!name){ toast('お名前を入力してください', true); document.getElementById('fName').focus(); return; }
-  if (!phone){ toast('電話番号を入力してください', true); document.getElementById('fPhone').focus(); return; }
+  const r = readForm();
+  if (!r.ok){ toast(r.error, true); return; }
+  state.formValues = r.values;
 
-  const d = state.selectedDate, c = state.selectedClass;
-  const rows = [
-    ['日にち', `${jpDate(d)}（${WD[wdOfYmd(d)]}）`],
-    ['クラス', c.class_name + (c.start_time?`  ${c.start_time}${c.end_time?'〜'+c.end_time:''}`:'')],
-    ['お名前', name],
-    ['電話', phone]
-  ];
-  const age = document.getElementById('fAge').value.trim();
-  const exp = document.getElementById('fExp').value;
-  if (age) rows.push(['年齢・学年', age]);
-  if (exp) rows.push(['ダンス経験', exp]);
   document.getElementById('confirmRows').innerHTML =
-    rows.map(r=>`<div class="crow"><span class="k">${r[0]}</span><span class="v">${escapeHtml(r[1])}</span></div>`).join('');
+    summaryRows(r.values)
+      .map(x=>`<div class="crow"><span class="k">${escapeHtml(x[0])}</span><span class="v">${escapeHtml(x[1])}</span></div>`)
+      .join('');
   document.getElementById('confirmSheet').classList.add('open');
 };
 document.getElementById('confirmCancel').onclick = closeSheet;
@@ -712,16 +820,12 @@ document.getElementById('confirmSubmit').onclick = async ()=>{
   const orig = btn.textContent;
   btn.disabled = true; btn.innerHTML = '<span class="btn-mini"><span class="spinner"></span> 送信中…</span>';
 
+  const values = state.formValues || (readForm().values || {});
   const payload = {
     action:'createBooking',
     date: state.selectedDate,
     classId: state.selectedClass.class_id,
-    name: document.getElementById('fName').value.trim(),
-    kana: document.getElementById('fKana').value.trim(),
-    age: document.getElementById('fAge').value.trim(),
-    phone: document.getElementById('fPhone').value.trim(),
-    experience: document.getElementById('fExp').value,
-    note: document.getElementById('fNote').value.trim(),
+    fields: values,
     lineUserId: state.profile.userId,
     lineDisplayName: state.profile.displayName
   };
@@ -757,20 +861,24 @@ function renderDone(booking, payload){
   const cls = state.selectedClass || {};
   const d = booking.date || state.selectedDate || '';
   const wd = booking.weekday || (d ? WD[wdOfYmd(d)] : '');
-  const className = booking.class_name || cls.class_name || cls.name || '';
+  const className = booking.class_name || cls.class_name || '';
   const startT = booking.start_time || cls.start_time || '';
   const endT = booking.end_time || cls.end_time || '';
   const loc = booking.location || cls.location || '';
+  const values = (payload && payload.fields) || {};
+
   const rows = [
     ['日にち', d ? `${jpDate(d)}（${wd}）` : ''],
-    ['クラス', className + (startT?`  ${startT}${endT?'〜'+endT:''}`:'')],
-    ['お名前', payload.name || ''],
-    ['電話', payload.phone || '']
+    ['クラス', className + (startT?`  ${startT}${endT?'〜'+endT:''}`:'')]
   ];
-  if (loc) rows.splice(2,0,['場所', loc]);
+  if (loc) rows.push(['場所', loc]);
+  (state.fields||[]).forEach(f=>{
+    if (values[f.key]) rows.push([f.label, values[f.key]]);
+  });
+
   document.getElementById('doneRows').innerHTML =
     rows.filter(r=>String(r[1]).trim()!=='')
-        .map(r=>`<div class="crow"><span class="k">${r[0]}</span><span class="v">${escapeHtml(r[1])}</span></div>`).join('');
+        .map(r=>`<div class="crow"><span class="k">${escapeHtml(r[0])}</span><span class="v">${escapeHtml(r[1])}</span></div>`).join('');
 }
 
 /* ---------- 予約一覧 ---------- */
@@ -822,8 +930,13 @@ document.getElementById('doneClose').onclick = ()=>{
     '<div class="panel-empty"><span>日付を選ぶと、その日に体験できるクラスが表示されます。</span></div>';
 };
 function resetForm(){
-  ['fName','fKana','fAge','fPhone','fNote'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fExp').value='';
+  state.formValues = null;
+  document.querySelectorAll('#dynFields .field').forEach(el=>el.classList.remove('has-err'));
+  document.querySelectorAll('#dynFields input,#dynFields select,#dynFields textarea').forEach(el=>{
+    if (el.type === 'radio' || el.type === 'checkbox') el.checked = false;
+    else el.value = '';
+  });
+  document.querySelectorAll('#dynFields .optitem').forEach(li=>li.classList.remove('on'));
 }
 function setStep(n){
   document.querySelectorAll('.steps').forEach(bar=>{
@@ -841,7 +954,11 @@ function errMsg(code){
     already_booked:'この日のこのクラスは、すでに予約済みです。',
     date_unavailable:'選択した日は予約できなくなりました。別の日を選んでください。',
     class_unavailable:'このクラスは予約できなくなりました。',
-    network:'通信に失敗しました。電波の良い場所で再度お試しください。'
+    network:'通信に失敗しました。電波の良い場所で再度お試しください。',
+    missing_required:'未入力の必須項目があります。',
+    no_name:'お名前を入力してください。',
+    no_phone:'電話番号を入力してください。',
+    busy:'混み合っています。少し時間をおいて再度お試しください。'
   })[code] || '予約に失敗しました。時間をおいて再度お試しください。';
 }
 
