@@ -93,10 +93,10 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 /* ---- トグルスイッチ ---- */
 .toggle{display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none; position:relative}
 .toggle input{position:absolute; opacity:0; width:0; height:0}
-/* テキストを左、スイッチを右端に固定して縦に揃える */
-.toggle .tl{order:1; flex:1; min-width:0; font-weight:600; font-size:13.5px}
+/* テキストを左、スイッチを右端に固定して縦に揃える（HTMLの並び順と一致させている） */
+.toggle .tl{flex:1; min-width:0; font-weight:600; font-size:13.5px}
 .toggle .tl small{display:block; font-weight:400; color:var(--ink-3); font-size:11.5px; margin-top:2px}
-.track{order:2; margin-left:auto; flex:none; position:relative;
+.track{margin-left:auto; flex:none; position:relative;
   width:64px; height:30px; border-radius:999px; transition:background .2s;
   background:#dcd8ce; box-shadow:inset 0 0 0 1px rgba(29,27,36,.09)}
 /* ON / OFF の文字 */
@@ -106,11 +106,11 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 /* つまみ */
 .track::after{content:""; position:absolute; top:4px; left:4px; width:22px; height:22px; border-radius:50%;
   background:#fff; box-shadow:0 1px 4px rgba(29,27,36,.32); transition:transform .2s}
-.toggle input:checked + .track{background:var(--sunrise); box-shadow:0 2px 8px rgba(255,122,69,.35)}
-.toggle input:checked + .track::before{content:"ON"; right:auto; left:11px; color:#fff}
-.toggle input:checked + .track::after{transform:translateX(34px)}
+.toggle input:checked ~ .track{background:var(--sunrise); box-shadow:0 2px 8px rgba(255,122,69,.35)}
+.toggle input:checked ~ .track::before{content:"ON"; right:auto; left:11px; color:#fff}
+.toggle input:checked ~ .track::after{transform:translateX(34px)}
 /* キーボード操作時のフォーカス表示 */
-.toggle input:focus-visible + .track{outline:2px solid var(--accent); outline-offset:3px}
+.toggle input:focus-visible ~ .track{outline:2px solid var(--accent); outline-offset:3px}
 /* 単独で置かれるスイッチ（クラス一覧・グループ一覧）は余白を詰める */
 .crow .ctog, .gitem .toggle{gap:0}
 /* 設定項目としてのスイッチは行全体をカード化して押しやすくする */
@@ -301,6 +301,12 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 .fopts{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:10px}
 .fchk{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-2); cursor:pointer}
 .fchk input{width:16px; height:16px; accent-color:var(--accent)}
+/* 設定行として単独で置かれるチェックは、トグルと同じく右端に寄せる */
+.ovopts .fchk, .bk-edit > .fchk{
+  justify-content:space-between; gap:12px; padding:12px 14px;
+  border:1px solid var(--line); border-radius:var(--r-sm); background:var(--surface-3);
+  font-size:13.5px; font-weight:600; color:var(--ink)}
+.ovopts .fchk input, .bk-edit > .fchk input{order:2; margin-left:auto; width:20px; height:20px; flex:none}
 .fitem .field{margin-bottom:8px}
 .fitem .field>label{font-size:11.5px}
 .fitem textarea{min-height:70px}
@@ -335,6 +341,27 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
   font-size:13px; line-height:1.75; margin-top:10px}
 .timesel{display:flex; align-items:center; gap:6px}
 .timesel select{width:auto; min-width:76px}
+
+/* ---- v2: 代講・その日だけの変更 ---- */
+.adcal-day.has-ov .cell{background:var(--blue-soft); border-color:#bcd4f5}
+.adcal-day.has-ov .mk{background:var(--blue)}
+.adcal-legend .lg-sub{background:var(--blue)}
+.ovclass{border:1px solid var(--line); border-radius:var(--r-sm); padding:13px; margin-bottom:10px;
+  background:var(--surface)}
+.ovclass.changed{border-color:#bcd4f5; background:var(--blue-soft)}
+.ovhead{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.ovhead .ovname{font-weight:700; font-size:14.5px; flex:1; min-width:0}
+.ovbase{font-family:var(--num); font-size:11.5px; color:var(--ink-2); margin:6px 0 11px}
+.ovgrid{display:grid; grid-template-columns:1fr 1fr; gap:9px}
+.ovgrid .field{margin-bottom:0}
+.ovgrid .field.wide{grid-column:1/-1}
+.ovgrid .field>label{font-size:11.5px}
+.ovacts{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
+.ovacts .btn{flex:1 1 auto}
+.ovopts{display:flex; flex-direction:column; gap:9px}
+.ovdate{font-family:var(--num); font-size:17px; font-weight:700}
+.ovdate .wd{font-size:12px; color:var(--ink-2); margin-left:6px; font-family:var(--font)}
+@media(max-width:560px){ .ovgrid{grid-template-columns:1fr} }
 
 /* ---- v2: 予約の編集 ---- */
 .bk-edit{margin-top:12px; border-top:1px dashed var(--line-2); padding-top:12px}
@@ -380,8 +407,9 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
     <button class="tab" data-tab="classes" onclick="switchTab('classes')"><span class="ti">02</span>クラス公開</button>
     <button class="tab" data-tab="blocked" onclick="switchTab('blocked')"><span class="ti">03</span>不可期間</button>
     <button class="tab" data-tab="bookings" onclick="switchTab('bookings')"><span class="ti">04</span>予約一覧<span class="badge hide" id="bkBadge">0</span></button>
-    <button class="tab" data-tab="form" onclick="switchTab('form')"><span class="ti">05</span>フォーム項目</button>
-    <button class="tab" data-tab="notify" onclick="switchTab('notify')"><span class="ti">06</span>通知・文言</button>
+    <button class="tab" data-tab="sub" onclick="switchTab('sub')"><span class="ti">05</span>代講・変更</button>
+    <button class="tab" data-tab="form" onclick="switchTab('form')"><span class="ti">06</span>フォーム項目</button>
+    <button class="tab" data-tab="notify" onclick="switchTab('notify')"><span class="ti">07</span>通知・文言</button>
   </div>
 
   <!-- ---- 01 受付設定 ---- -->
@@ -394,8 +422,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
       <div class="field">
         <label class="toggle">
           <input type="checkbox" id="recEnabled">
-          <span class="track"></span>
           <span class="tl">体験受付を有効にする<small>オフにするとユーザー画面は「受付停止中」と表示されます</small></span>
+          <span class="track"></span>
         </label>
       </div>
 
@@ -424,8 +452,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
       <div class="field">
         <label class="toggle">
           <input type="checkbox" id="notifyUser">
-          <span class="track"></span>
           <span class="tl">本人にもLINEで確認通知を送る<small>LINE経由の予約時、申込者にも受付完了メッセージを送信します</small></span>
+          <span class="track"></span>
         </label>
       </div>
 
@@ -558,7 +586,27 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
     </div>
   </div>
 
-  <!-- ---- 05 フォーム項目 ---- -->
+  <!-- ---- 05 代講・その日だけの変更 ---- -->
+  <div class="panel" id="panel-sub">
+    <div class="card">
+      <span class="eyebrow">Substitute</span>
+      <h2>代講・その日だけの変更</h2>
+      <p class="desc">日付を選ぶと、その日に開講されるクラスが並びます。<b>講師・時間・場所・クラス名・定員</b>をその日だけ差し替えられます。空欄のままなら通常どおりです。</p>
+      <div class="adcal">
+        <div class="adcal-head">
+          <button class="cal-nav" id="ovPrev" onclick="ovCalNav(-1)">‹</button>
+          <div class="adcal-ym" id="ovYm">—</div>
+          <button class="cal-nav" id="ovNext" onclick="ovCalNav(1)">›</button>
+        </div>
+        <div class="adcal-dow"><span class="s">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="t">土</span></div>
+        <div class="adcal-grid" id="ovGrid"></div>
+        <div class="adcal-legend"><span><i class="lg-sub"></i>変更が登録されている日</span></div>
+      </div>
+    </div>
+    <div id="ovEditor"></div>
+  </div>
+
+  <!-- ---- 06 フォーム項目 ---- -->
   <div class="panel" id="panel-form">
     <div class="card">
       <span class="eyebrow">Form fields</span>
@@ -610,8 +658,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
       <div class="field">
         <label class="toggle">
           <input type="checkbox" id="nfAdminOn">
-          <span class="track"></span>
           <span class="tl">管理者へ通知する<small>下が空欄のときは、スクリプトに登録済みの管理者IDへ送ります</small></span>
+          <span class="track"></span>
         </label>
       </div>
       <div class="field">
@@ -622,8 +670,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
       <div class="field" style="margin-top:18px">
         <label class="toggle">
           <input type="checkbox" id="nfGroupOn">
-          <span class="track"></span>
           <span class="tl">スタッフのLINEグループへ通知する<small>公式アカウントをグループに招待しておく必要があります</small></span>
+          <span class="track"></span>
         </label>
       </div>
       <div id="groupList"></div>
@@ -680,8 +728,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
       <div class="field">
         <label class="toggle">
           <input type="checkbox" id="rmEnabled">
-          <span class="track"></span>
           <span class="tl">当日朝の自動通知を有効にする<small>保存すると実行トリガーが作り直されます</small></span>
+          <span class="track"></span>
         </label>
       </div>
       <div class="field">
@@ -694,8 +742,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
       <div class="field">
         <label class="toggle">
           <input type="checkbox" id="rmSkipEmpty">
-          <span class="track"></span>
           <span class="tl">体験者が0名の日は送らない<small>通数の節約になります。オフにすると「本日はありません」と毎日届きます</small></span>
+          <span class="track"></span>
         </label>
       </div>
       <div id="trgState" class="trg off">トリガーの状態を確認中…</div>
@@ -759,6 +807,9 @@ const state = {
   adSelected: '',   // 選択中の日 'YYYY-MM-DD'
   busy: false,
   bkMap: {},        // booking_id -> 予約レコード（編集用）
+  ovMonth: '',      // 代講カレンダーの表示月
+  ovDate: '',       // 選択中の日
+  ovDay: null,      // adminGetDayClasses のレスポンス
   usage: null,
   trigger: null
 };
@@ -1412,8 +1463,10 @@ const TEXT_DEFS = [
   ['userCancelled', '申込者：キャンセル受付',  'キャンセル時に本人へ送る場合の文面'],
   ['adminNew',      '管理者：新規申込',        ''],
   ['staffNew',      'グループ：新規申込',      '短めにしておくとグループが荒れません'],
+  ['userSubstitute','申込者：代講・内容変更',  '講師や時間をその日だけ変えたときに送ります'],
   ['adminCancel',   '管理者：キャンセル',      ''],
   ['staffCancel',   'グループ：キャンセル',    ''],
+  ['staffSubstitute', 'スタッフ：代講・内容変更', ''],
   ['staffReminderHeader', '当日まとめの見出し', 'この下に体験者の一覧が自動で並びます'],
   ['staffReminderEmpty',  '当日まとめ（0名の日）', '「0名の日は送らない」がオフのときだけ使われます'],
   ['closedMessage', '申込画面：受付停止中',    ''],
@@ -1541,6 +1594,189 @@ function addField(){
   document.getElementById('nfOpts').value = '';
   renderFormSchema();
   toast('追加しました（「フォーム項目を保存」で列が作られます）', 'ok');
+}
+
+
+/* ---------- 05 代講・その日だけの変更 ---------- */
+function renderOvCalendar(){
+  const ym = state.ovMonth;
+  const grid = document.getElementById('ovGrid');
+  if (!grid) return;
+  const today = todayLocalYmd();
+  const p = ym.split('-');
+  document.getElementById('ovYm').textContent = p[0]+'年'+Number(p[1])+'月';
+
+  const minMonth = monthAdd(today.slice(0,7), -1);
+  const maxMonth = monthAdd(today.slice(0,7), 12);
+  document.getElementById('ovPrev').disabled = (ym <= minMonth);
+  document.getElementById('ovNext').disabled = (ym >= maxMonth);
+
+  const ov = state.settings.classOverrides || {};
+  const lead = firstWeekday(ym), total = daysInMonth(ym);
+  let html = '';
+  for (let d=1; d<=total; d++){
+    const ymd = ym+'-'+String(d).padStart(2,'0');
+    const muted = (ymd < today);
+    let cls = 'adcal-day';
+    if (muted) cls += ' muted';
+    if (state.ovDate === ymd) cls += ' sel';
+    if (ov[ymd] && Object.keys(ov[ymd]).length) cls += ' has-ov';
+    const colStart = (d===1 && lead>0) ? ' style="grid-column-start:'+(lead+1)+'"' : '';
+    html += '<div class="'+cls+'"'+colStart+' onclick="selectOvDate(\''+ymd+'\')">'+
+      '<div class="cell"><span class="dn">'+d+'</span><span class="mk"></span></div></div>';
+  }
+  grid.innerHTML = html;
+}
+
+function ovCalNav(delta){
+  state.ovMonth = monthAdd(state.ovMonth, delta);
+  state.ovDate = '';
+  state.ovDay = null;
+  document.getElementById('ovEditor').innerHTML = '';
+  renderOvCalendar();
+}
+
+async function selectOvDate(ymd){
+  state.ovDate = ymd;
+  renderOvCalendar();
+  const box = document.getElementById('ovEditor');
+  box.innerHTML = '<div class="card"><div class="loading"><span class="spin"></span>その日のクラスを取得中…</div></div>';
+  let res;
+  try{ res = await apiPost('adminGetDayClasses', { date: ymd }); }
+  catch(e){ box.innerHTML = '<div class="card"><div class="empty"><span class="ico">⚠️</span>通信エラーが発生しました</div></div>'; return; }
+  if (!res || !res.ok){
+    box.innerHTML = '<div class="card"><div class="empty"><span class="ico">⚠️</span>取得に失敗しました</div></div>'; return;
+  }
+  state.ovDay = res;
+  renderDayClasses();
+  box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function renderDayClasses(){
+  const res = state.ovDay;
+  const box = document.getElementById('ovEditor');
+  const head =
+    '<div class="card">'+
+      '<div class="ovdate">'+esc(res.date)+'<span class="wd">（'+esc(res.weekday)+'）</span></div>'+
+      (res.classes.length
+        ? '<p class="desc" style="margin-top:6px">変更したい欄だけ入力してください。空欄の項目は通常どおりの内容が使われます。</p>'
+        : '<div class="empty" style="margin-top:10px"><span class="ico">📭</span>この曜日に開講されるクラスはありません</div>');
+
+  if (!res.classes.length){ box.innerHTML = head + '</div>'; return; }
+
+  const opts =
+    '<div class="ovopts" style="margin-top:14px">'+
+      '<label class="fchk"><input type="checkbox" id="ovApply" checked> 既にある予約にも反映する</label>'+
+      '<label class="fchk"><input type="checkbox" id="ovNotifyUser"> 予約者へLINEで知らせる</label>'+
+      '<label class="fchk"><input type="checkbox" id="ovNotifyStaff"> 管理者・スタッフグループへ知らせる</label>'+
+    '</div></div>';
+
+  const body = res.classes.map((c, i)=>{
+    const o = c.override || {};
+    const b = c.base;
+    const changed = !!c.override;
+    const pills =
+      (c.bookingCount ? '<span class="pill" style="background:var(--warn-soft);color:#8a5a10">予約'+c.bookingCount+'件</span>' : '')+
+      (!c.trialEnabled ? '<span class="pill off">体験非公開</span>' : '')+
+      (c.stopped ? '<span class="pill inactive">停止中</span>' : '')+
+      (String(c.active)==='false' ? '<span class="pill inactive">無効</span>' : '')+
+      (changed ? '<span class="modepill limit">変更あり</span>' : '');
+
+    return '<div class="card ovclass'+(changed?' changed':'')+'">'+
+      '<div class="ovhead"><span class="ovname">'+esc(b.class_name || c.class_id)+'</span>'+pills+'</div>'+
+      '<div class="ovbase">通常： '+esc((b.start_time||'--')+(b.end_time?'–'+b.end_time:''))+
+        ' / '+esc(b.instructor||'講師未設定')+' / '+esc(b.location||'場所未設定')+' / 定員'+b.capacity+'</div>'+
+      '<div class="ovgrid">'+
+        '<div class="field"><label>担当講師</label>'+
+          '<input type="text" id="ovf'+i+'_instructor" value="'+esc(o.instructor||'')+'" placeholder="'+esc(b.instructor||'')+'"></div>'+
+        '<div class="field"><label>場所</label>'+
+          '<input type="text" id="ovf'+i+'_location" value="'+esc(o.location||'')+'" placeholder="'+esc(b.location||'')+'"></div>'+
+        '<div class="field"><label>開始</label>'+
+          '<input type="time" id="ovf'+i+'_start_time" value="'+esc(o.start_time||'')+'"></div>'+
+        '<div class="field"><label>終了</label>'+
+          '<input type="time" id="ovf'+i+'_end_time" value="'+esc(o.end_time||'')+'"></div>'+
+        '<div class="field"><label>クラス名</label>'+
+          '<input type="text" id="ovf'+i+'_class_name" value="'+esc(o.class_name||'')+'" placeholder="'+esc(b.class_name||'')+'"></div>'+
+        '<div class="field"><label>定員</label>'+
+          '<input type="number" min="1" max="999" id="ovf'+i+'_capacity" value="'+(o.capacity||'')+'" placeholder="'+b.capacity+'"></div>'+
+        '<div class="field wide"><label>ひとこと <span class="sub">通知に差し込まれます</span></label>'+
+          '<input type="text" id="ovf'+i+'_note" value="'+esc(o.note||'')+'" placeholder="例）本日は YUU の代講で MIKI が担当します"></div>'+
+      '</div>'+
+      '<div class="ovacts">'+
+        '<button class="btn btn-primary btn-sm" onclick="saveOverride('+i+', this)">この日だけ変更を保存</button>'+
+        (changed ? '<button class="btn btn-ghost btn-sm" onclick="clearOverride('+i+', this)">通常に戻す</button>' : '')+
+      '</div>'+
+    '</div>';
+  }).join('');
+
+  box.innerHTML = head + opts + body;
+}
+
+function readOverrideForm(i){
+  const g = k => {
+    const el = document.getElementById('ovf'+i+'_'+k);
+    return el ? el.value.trim() : '';
+  };
+  const o = {
+    instructor: g('instructor'), location: g('location'),
+    start_time: g('start_time'), end_time: g('end_time'),
+    class_name: g('class_name'), capacity: g('capacity'), note: g('note')
+  };
+  const has = Object.keys(o).some(k=>o[k] !== '');
+  return has ? o : null;
+}
+
+function overrideOptions(){
+  return {
+    applyToBookings: document.getElementById('ovApply').checked,
+    notifyUsers: document.getElementById('ovNotifyUser').checked,
+    notifyStaff: document.getElementById('ovNotifyStaff').checked
+  };
+}
+
+async function postOverride(i, override, btn, okMsg){
+  if (state.busy) return;
+  const c = state.ovDay.classes[i];
+  const opt = overrideOptions();
+  if (override && opt.notifyUsers && c.bookingCount > 0){
+    if (!confirm('予約者 '+c.bookingCount+' 名にLINEで変更を知らせます。\n\nよろしいですか？')) return;
+  }
+  state.busy = true;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = '保存中…';
+  let res;
+  try{
+    res = await apiPost('adminSaveDayOverride', Object.assign({
+      date: state.ovDate, classId: c.class_id, override: override
+    }, opt));
+  }catch(e){ res = null; }
+  state.busy = false;
+  btn.disabled = false; btn.textContent = orig;
+
+  if (!res || !res.ok){
+    toast('保存に失敗しました：' + ((res && res.error) || '不明'), 'err');
+    return;
+  }
+  state.settings.classOverrides = res.classOverrides || {};
+  let msg = okMsg;
+  if (res.updated) msg += '（予約'+res.updated+'件に反映';
+  if (res.notified) msg += ' / '+res.notified+'名へ通知';
+  if (res.updated) msg += '）';
+  toast(msg, (res.errors && res.errors.length) ? 'err' : 'ok');
+  if (res.errors && res.errors.length) console.log('[override] errors:', res.errors);
+
+  renderOvCalendar();
+  selectOvDate(state.ovDate);
+}
+
+function saveOverride(i, btn){
+  const o = readOverrideForm(i);
+  if (!o){ toast('変更したい項目を入力してください', 'err'); return; }
+  postOverride(i, o, btn, 'この日の変更を保存しました');
+}
+
+function clearOverride(i, btn){
+  if (!confirm('この日の変更を取り消して、通常の内容に戻します。よろしいですか？')) return;
+  postOverride(i, null, btn, '通常の内容に戻しました');
 }
 
 /* ---------- 06 通知 ---------- */
@@ -1984,6 +2220,10 @@ function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.getAttribute('data-tab')===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('panel-'+name).classList.add('on');
+  if (name === 'sub'){
+    if (!state.ovMonth) state.ovMonth = todayLocalYmd().slice(0,7);
+    renderOvCalendar();
+  }
   if (name === 'bookings' && document.getElementById('bookingList').querySelector('.empty')){
     // 初回だけ自動ロード
     if (!switchTab._bkLoaded){ switchTab._bkLoaded = true; loadBookings(); }
