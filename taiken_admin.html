@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>体験予約 管理 | SoL Dance School</title>
+<title>体験予約 管理 | SoL Dance Community</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -91,7 +91,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 .num-sm{max-width:130px}
 
 /* ---- トグルスイッチ ---- */
-.toggle{display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none; position:relative}
+.toggle{display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none;
+  position:relative; width:100%}
 .toggle input{position:absolute; opacity:0; width:0; height:0}
 /* テキストを左、スイッチを右端に固定して縦に揃える（HTMLの並び順と一致させている） */
 .toggle .tl{flex:1; min-width:0; font-weight:600; font-size:13.5px}
@@ -112,7 +113,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 /* キーボード操作時のフォーカス表示 */
 .toggle input:focus-visible ~ .track{outline:2px solid var(--accent); outline-offset:3px}
 /* 単独で置かれるスイッチ（クラス一覧・グループ一覧）は余白を詰める */
-.crow .ctog, .gitem .toggle{gap:0}
+.crow .ctog, .gitem .toggle{gap:0; width:auto}
 /* 設定項目としてのスイッチは行全体をカード化して押しやすくする */
 .field > .toggle{padding:13px 14px; border:1px solid var(--line); border-radius:var(--r-sm);
   background:var(--surface-3); transition:border-color .2s, background .2s}
@@ -215,8 +216,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 .ae-choice .cap{font-weight:400; color:var(--ink-3); font-size:12px; margin-left:auto}
 .ae-classlist{margin:0 0 12px; padding:11px 12px; border:1px dashed var(--line-2); border-radius:11px; background:var(--surface)}
 .ae-classlist .lbl{font-size:11.5px; color:var(--ink-2); font-weight:600; margin-bottom:8px}
-.ae-actions{display:flex; gap:9px}
-.ae-actions .btn{flex:1}
+.ae-actions{display:flex; gap:9px; justify-content:flex-end}
+.ae-actions .btn{flex:0 0 auto}
 
 /* ---- 予約一覧 ---- */
 .filterbar{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:4px}
@@ -342,6 +343,20 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 .timesel{display:flex; align-items:center; gap:6px}
 .timesel select{width:auto; min-width:76px}
 
+/* ---- v2: 操作ボタンは右寄せ（PC操作を前提に、視線の終端へ揃える） ---- */
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:12px}
+.card > .btn:not(.btn-block),
+.addfield > .btn:not(.btn-block),
+.add-range > .btn:not(.btn-block){display:flex; margin-left:auto;
+  width:-webkit-fit-content; width:fit-content}
+.filterbar{justify-content:flex-end}
+.bk-actions{justify-content:flex-end}
+/* 保存バーはPCでは右寄せの通常幅、スマホでは横いっぱい */
+@media(min-width:720px){
+  .save-bar{display:flex; justify-content:flex-end}
+  .save-bar .btn-block{width:auto; min-width:280px}
+}
+
 /* ---- v2: 代講・その日だけの変更 ---- */
 .adcal-day.has-ov .cell{background:var(--blue-soft); border-color:#bcd4f5}
 .adcal-day.has-ov .mk{background:var(--blue)}
@@ -356,8 +371,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 .ovgrid .field{margin-bottom:0}
 .ovgrid .field.wide{grid-column:1/-1}
 .ovgrid .field>label{font-size:11.5px}
-.ovacts{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
-.ovacts .btn{flex:1 1 auto}
+.ovacts{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; justify-content:flex-end}
+.ovacts .btn{flex:0 0 auto}
 .ovopts{display:flex; flex-direction:column; gap:9px}
 .ovdate{font-family:var(--num); font-size:17px; font-weight:700}
 .ovdate .wd{font-size:12px; color:var(--ink-2); margin-left:6px; font-family:var(--font)}
@@ -368,8 +383,8 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 .bk-edit .row2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
 .bk-edit .field{margin-bottom:9px}
 .bk-edit .field>label{font-size:11.5px}
-.bk-edit .btns{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
-.bk-edit .btns .btn{flex:1 1 auto}
+.bk-edit .btns{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; justify-content:flex-end}
+.bk-edit .btns .btn{flex:0 0 auto}
 .warnbox{background:var(--warn-soft); border-radius:var(--r-sm); padding:10px 12px; font-size:12.5px;
   color:#7a4d09; margin-bottom:10px}
 @media(max-width:560px){ .bk-edit .row2{grid-template-columns:1fr} }
@@ -382,7 +397,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 <div id="login" class="login">
   <div class="sun"></div>
   <h1>体験予約 管理</h1>
-  <p>SoL Dance School<br>管理用パスコードを入力してください</p>
+  <p>SoL Dance Community<br>管理用パスコードを入力してください</p>
   <div class="login-card">
     <label for="tokenInput">管理パスコード</label>
     <input type="password" id="tokenInput" placeholder="Admin Token" autocomplete="off"
@@ -397,7 +412,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
   <div class="top">
     <div class="brand">
       <div class="sun"></div>
-      <div class="brand-txt"><b>体験予約 管理</b><span>SoL Dance School</span></div>
+      <div class="brand-txt"><b>体験予約 管理</b><span>SoL Dance Community</span></div>
     </div>
     <button class="logout" onclick="doLogout()">ログアウト</button>
   </div>
@@ -574,7 +589,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
             <option value="cancelled">キャンセル</option>
           </select>
         </div>
-        <div class="field" style="flex:1 1 160px"><label>キーワード</label><input type="text" id="fQ" placeholder="名前・電話・クラス"></div>
+        <div class="field" style="flex:1 1 160px; margin-right:auto"><label>キーワード</label><input type="text" id="fQ" placeholder="名前・電話・クラス"></div>
         <button class="btn btn-primary btn-sm" onclick="loadBookings()">絞り込み</button>
         <button class="btn btn-ghost btn-sm" onclick="clearFilter()">クリア</button>
       </div>
@@ -682,7 +697,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
           <label>グループID <span class="sub">Cで始まる文字列</span></label>
           <input type="text" id="ngId" placeholder="C0123456789abcdef0123456789abcdef">
         </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <div class="btnrow">
           <button class="btn btn-ghost btn-sm" onclick="addGroup()">＋ 照会して追加</button>
           <button class="btn btn-ghost btn-sm" onclick="loadWebhookLog()">🔍 受信ログから探す</button>
         </div>
@@ -747,7 +762,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
         </label>
       </div>
       <div id="trgState" class="trg off">トリガーの状態を確認中…</div>
-      <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap">
+      <div class="btnrow">
         <button class="btn btn-ghost btn-sm" onclick="previewReminder()">👀 本日分をプレビュー</button>
         <button class="btn btn-ghost btn-sm" onclick="runReminderNow()">▶️ 今すぐ送信</button>
       </div>
@@ -773,7 +788,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
       <h2>テスト送信と通数</h2>
       <div class="usage"><b id="usageCount">—</b><span>通 / 今月の推定送信数（無料プランは月200通）</span></div>
       <p class="desc">グループ送信は人数分としてカウントしています。正確な数値はLINE公式アカウントマネージャーをご確認ください。</p>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+      <div class="btnrow">
         <button class="btn btn-ghost btn-sm" onclick="testNotifyTo('admin')">🔔 管理者へテスト</button>
         <button class="btn btn-ghost btn-sm" onclick="testNotifyTo('group')">👥 グループへテスト</button>
       </div>
@@ -1942,7 +1957,7 @@ async function loadWebhookLog(){
         '<div class="gid">'+esc(r.id)+'</div></div>'+
         '<span style="color:var(--ink-3);font-size:18px">›</span></div>'
     ).join('') +
-    '<button class="btn btn-ghost btn-sm" style="margin-top:8px" onclick="clearWebhookLog()">受信ログを削除</button>';
+    '<div class="btnrow"><button class="btn btn-ghost btn-sm" onclick="clearWebhookLog()">受信ログを削除</button></div>';
 }
 
 function pickGroupId(id){
