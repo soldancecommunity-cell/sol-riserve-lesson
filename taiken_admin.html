@@ -389,6 +389,33 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
   color:#7a4d09; margin-bottom:10px}
 @media(max-width:560px){ .bk-edit .row2{grid-template-columns:1fr} }
 
+/* ---- v2.1: LINE連携の表示・確定通知の再送 ---- */
+.lp{display:inline-flex; align-items:center; gap:6px; flex-wrap:wrap; vertical-align:middle}
+.lp-ic{width:22px; height:22px; border-radius:50%; background:var(--surface-2); overflow:hidden;
+  flex:none; display:inline-block; box-shadow:inset 0 0 0 1px var(--line)}
+.lp-ic img{width:100%; height:100%; object-fit:cover; display:block}
+.lp-st:empty{display:none}
+.lp-spin{width:12px; height:12px; border-width:2px; display:inline-block; vertical-align:middle}
+.lpbadge{font-size:10.5px; font-weight:700; border-radius:999px; padding:2px 8px; white-space:nowrap}
+.lpbadge.warn{background:var(--warn-soft); color:#8a5a10}
+.lpbadge.ng{background:var(--danger-soft); color:var(--danger)}
+.lpbadge.mute{background:var(--surface-2); color:var(--ink-3)}
+.bk-sent{margin-top:9px; font-size:12px; color:var(--ok); font-weight:600}
+
+/* ---- v2.1: ボタン配置の調整（機能は変えず、置き場所と大きさだけ） ---- */
+/* 設定項目のスイッチ：.field>label{display:block} が優先されてトラックが消え、つまみだけ左下に出ていたのを直す */
+.field > .toggle{display:flex}
+/* 予約カード：1段目＝ステータス・メモと「更新」、2段目＝編集・確定通知の再送 */
+.bk-actions2{display:flex; gap:9px; flex-wrap:wrap; justify-content:flex-end; margin-top:10px;
+  padding-top:10px; border-top:1px dashed var(--line-2)}
+@media(max-width:560px){
+  .bk-actions input{flex:1 1 0}      /* メモと「更新」を同じ行に並べる */
+  .bk-actions2 .btn{flex:1 1 0}      /* 編集・再送は横半分ずつ */
+}
+/* フォーム項目の並べ替え ▲▼ を押しやすい大きさに */
+.fmove{gap:4px}
+.fmove button{width:32px; height:26px; font-size:11px; border-radius:7px}
+
 </style>
 </head>
 <body>
@@ -778,6 +805,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
         <code>{{date}}</code> <code>{{weekday}}</code> <code>{{time}}</code> <code>{{class}}</code>
         <code>{{location}}</code> <code>{{instructor}}</code> <code>{{experience}}</code> <code>{{note}}</code>
         <code>{{bookingId}}</code> <code>{{by}}</code> <code>{{count}}</code><br>
+        <code>{{userNotifyStatus}}</code> … 新規申込の管理者・グループ向けだけで使えます（本人への確定通知の結果が1行入ります。文面に無いときは末尾に自動で付きます）<br>
         <code>[[（{{age}}）]]</code> のように囲むと、中身が空のときはカッコごと消えます。
       </div>
       <div id="tplList"></div>
@@ -812,6 +840,7 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbxO1uZxGZnDey5tyz1dadeT
 const LS_KEY = 'sol_taiken_admin_token';
 const WD_ALL = ['日','月','火','水','木','金','土'];
 const STATUS_LABEL = { pending:'仮予約', confirmed:'確定', done:'来店済み', cancelled:'キャンセル' };
+const MONTHLY_FREE_QUOTA = 200;   // LINE無料プランの月間通数（確定通知の再送時に残りの目安を出す）
 
 const state = {
   token: '',
@@ -826,7 +855,8 @@ const state = {
   ovDate: '',       // 選択中の日
   ovDay: null,      // adminGetDayClasses のレスポンス
   usage: null,
-  trigger: null
+  trigger: null,
+  lpSeq: 0          // v2.1: LINEプロフィール取得の世代（一覧を読み直したら古い結果を捨てる）
 };
 
 /* ---------- 通信 ---------- */
@@ -1393,9 +1423,14 @@ function renderBookings(rows){
     const exp = b.experience ? '<div class="kv"><span class="k">ダンス経験</span>'+esc(b.experience)+'</div>' : '';
     const age = b.age ? '<div class="kv"><span class="k">年齢/学年</span>'+esc(b.age)+'</div>' : '';
     const kana = b.kana ? '<span style="color:var(--ink-3);font-size:12px;font-weight:400"> （'+esc(b.kana)+'）</span>' : '';
-    const lineName = b.line_display_name ? '<div class="kv"><span class="k">LINE名</span>'+esc(b.line_display_name)+'</div>' : '';
+    const lineName = lineCellHtml(b);   // v2.1: LINEアイコン・表示名・連携状態
     const note = b.note ? '<div class="bk-note">📝 '+esc(b.note)+'</div>' : '';
     const adminNote = b.admin_note || '';
+    // v2.1: 確定通知の再送（LINE未連携・キャンセル済みは押せない）
+    const canResend = !!b.line_user_id && st !== 'cancelled';
+    const resendTitle = !b.line_user_id ? 'LINE未連携のため送れません' : (st === 'cancelled' ? 'キャンセル済みの予約です' : '');
+    const sent = '<div class="bk-sent'+(b.user_notified_at?'':' hide')+'" data-sent="'+esc(b.booking_id)+'">'+
+      (b.user_notified_at ? '📩 確定通知 送信済み（'+esc(fmtDateTime(b.user_notified_at))+'）' : '')+'</div>';
 
     card.innerHTML =
       '<div class="bk-top">'+
@@ -1412,7 +1447,7 @@ function renderBookings(rows){
         '<div class="kv"><span class="k">電話</span>'+phone+'</div>'+
         exp + lineName +
       '</div>'+
-      note +
+      note + sent +
       '<div class="bk-actions">'+
         '<select data-st="'+esc(b.booking_id)+'">'+
           ['pending','confirmed','done','cancelled'].map(v=>
@@ -1420,11 +1455,112 @@ function renderBookings(rows){
         '</select>'+
         '<input type="text" data-note="'+esc(b.booking_id)+'" placeholder="管理メモ（任意）" value="'+esc(adminNote)+'">'+
         '<button class="btn btn-ghost btn-sm" onclick="updateBooking(\''+esc(b.booking_id)+'\', this)">更新</button>'+
+      '</div>'+
+      '<div class="bk-actions2">'+
         '<button class="btn btn-ghost btn-sm" onclick="editBooking(\''+esc(b.booking_id)+'\')">✏️ 編集</button>'+
+        '<button class="btn btn-ghost btn-sm" onclick="resendConfirm(\''+esc(b.booking_id)+'\', this)"'+
+          (canResend ? '' : ' disabled title="'+esc(resendTitle)+'"')+'>📩 確定通知を送る（再送）</button>'+
       '</div>'+
       '<div class="bk-editwrap" data-edit="'+esc(b.booking_id)+'"></div>';
     list.appendChild(card);
   });
+  loadLineProfiles();   // v2.1: 表示中の行のLINEプロフィールをまとめて取得
+}
+
+/* ---------- v2.1: LINEプロフィール・確定通知の再送 ---------- */
+function lineCellHtml(b){
+  const uid = String(b.line_user_id || '');
+  if (!uid) return '<div class="kv"><span class="k">LINE名</span><span class="lpbadge warn">LINE未連携</span></div>';
+  return '<div class="kv"><span class="k">LINE名</span>'+
+    '<span class="lp" data-lpuid="'+esc(uid)+'">'+
+      '<span class="lp-ic"></span>'+
+      '<span class="lp-nm">'+esc(b.line_display_name || '')+'</span>'+
+      '<span class="lp-st"><span class="spin lp-spin"></span></span>'+
+    '</span></div>';
+}
+
+async function loadLineProfiles(){
+  const seq = ++state.lpSeq;
+  const uids = [];
+  Object.keys(state.bkMap).forEach(id=>{
+    const u = String(state.bkMap[id].line_user_id || '');
+    if (u && uids.indexOf(u) < 0) uids.push(u);
+  });
+  for (let i = 0; i < uids.length; i += 100){
+    const chunk = uids.slice(i, i + 100);
+    let res = null;
+    try{ res = await apiPost('adminLineProfiles', { userIds: chunk }); }catch(e){ res = null; }
+    if (seq !== state.lpSeq) return;   // 途中で一覧を読み直したら古い結果は捨てる
+    const profiles = (res && res.ok && res.profiles) || {};
+    chunk.forEach(u=> applyLineProfile(u, profiles[u] || { status:'error' }));
+  }
+}
+
+function applyLineProfile(uid, p){
+  document.querySelectorAll('[data-lpuid="'+cssEsc(uid)+'"]').forEach(el=>{
+    const ic = el.querySelector('.lp-ic'), nm = el.querySelector('.lp-nm'), st = el.querySelector('.lp-st');
+    if (p && p.status === 'ok'){
+      if (p.displayName) nm.textContent = p.displayName;
+      ic.innerHTML = /^https:\/\//.test(p.pictureUrl || '')
+        ? '<img src="'+esc(p.pictureUrl)+'" alt="" loading="lazy" referrerpolicy="no-referrer">' : '';
+      st.innerHTML = '';
+    } else if (p && p.status === 'not_friend'){
+      ic.innerHTML = '';
+      st.innerHTML = '<span class="lpbadge ng">友だちではありません</span>';
+    } else {
+      st.innerHTML = '<span class="lpbadge mute" title="'+esc(String((p && p.code) || ''))+'">LINE情報を取得できませんでした</span>';
+    }
+  });
+}
+
+async function resendConfirm(id, btn){
+  if (state.busy) return;
+  const b = state.bkMap[id];
+  if (!b || !b.line_user_id){ toast('LINE未連携のため送れません', 'err'); return; }
+
+  // 今月の通数を最新にしてから確認ダイアログを出す
+  try{ const u = await apiPost('adminMsgUsage'); if (u && u.ok){ state.usage = u.usage; renderUsage(); } }catch(_){}
+  const used = state.usage ? (Number(state.usage.count) || 0) : null;
+  const usageLine = (used == null)
+    ? '今月の推定送信数：取得できませんでした'
+    : '今月の推定送信数：'+used+'通 ／ 残りの目安：約'+Math.max(0, MONTHLY_FREE_QUOTA - used)+'通（無料枠 月'+MONTHLY_FREE_QUOTA+'通）';
+  const over = (used != null && used >= MONTHLY_FREE_QUOTA) ? '\n⚠️ 無料枠を使い切っている可能性があります。' : '';
+  const prev = b.user_notified_at ? '\n（前回の送信：'+fmtDateTime(b.user_notified_at)+'）' : '';
+  if (!confirm((b.name || '申込者')+' 様へ、予約確定のお知らせをLINEで送ります。'+prev+
+               '\n\n'+usageLine+over+'\n※ 1通消費します。\n\nよろしいですか？')) return;
+
+  state.busy = true;
+  btn.disabled = true; const orig = btn.textContent; btn.textContent = '送信中…';
+  let res;
+  try{ res = await apiPost('adminResendUserConfirm', { bookingId: id }); }catch(e){ res = null; }
+  state.busy = false;
+  btn.disabled = false; btn.textContent = orig;
+
+  if (res && res.usage){ state.usage = res.usage; renderUsage(); }
+  if (res && res.profile) applyLineProfile(b.line_user_id, res.profile);
+  if (res && res.ok){
+    b.user_notified_at = res.user_notified_at;
+    const el = document.querySelector('[data-sent="'+cssEsc(id)+'"]');
+    if (el){
+      el.textContent = '📩 確定通知 送信済み（'+fmtDateTime(res.user_notified_at)+'）';
+      el.classList.remove('hide');
+    }
+    toast('確定通知を送信しました', 'ok');
+  } else {
+    const e = res && res.error;
+    toast(e === 'not_friend' ? '届きませんでした（友だち未追加かブロック中です）'
+        : e === 'no_uid' ? 'LINE未連携のため送れません'
+        : e === 'cancelled' ? 'キャンセル済みの予約には送れません'
+        : e === 'not_found' ? '予約が見つかりません（一覧を読み直してください）'
+        : ('送信に失敗しました：' + ((res && (res.message || e)) || '通信エラー')), 'err');
+  }
+}
+
+function fmtDateTime(v){
+  if (!v) return '';
+  const d = new Date(v);
+  if (isNaN(d.getTime())) return String(v);
+  return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 }
 
 async function updateBooking(bookingId, btn){
@@ -2233,6 +2369,9 @@ async function saveNewBooking(btn){
 /* ---------- タブ切替 ---------- */
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.getAttribute('data-tab')===name));
+  // v2.1: スマホでタブが横にはみ出しているとき、選んだタブを見える位置へ寄せる
+  const onTab = document.querySelector('.tab[data-tab="'+name+'"]');
+  if (onTab && onTab.scrollIntoView) { try{ onTab.scrollIntoView({ block:'nearest', inline:'nearest' }); }catch(_){} }
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
   document.getElementById('panel-'+name).classList.add('on');
   if (name === 'sub'){

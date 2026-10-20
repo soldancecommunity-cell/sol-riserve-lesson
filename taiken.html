@@ -208,6 +208,13 @@ body{
 .crow .k{width:72px; flex:none; font-size:13px; color:var(--ink-2)}
 .crow .v{flex:1; font-size:14px; font-weight:500}
 
+/* ---- v2.1: 友だち追加の案内 ---- */
+.friend-actions{display:flex; flex-direction:column; gap:10px; margin-top:18px}
+a.btn{display:block; text-align:center; text-decoration:none}
+.friend-skip{display:block; margin:16px auto 2px; background:none; border:none; color:var(--ink-2);
+  font-family:var(--font); font-size:12.5px; text-decoration:underline; cursor:pointer; padding:6px; line-height:1.5}
+.friend-skip small{display:block; font-size:11px; color:var(--ink-3); text-decoration:none}
+
 /* ---- 完了 ---- */
 .done-hero{text-align:center; padding:18px 0 6px}
 .done-sun{width:120px; height:74px; margin:0 auto 6px}
@@ -438,6 +445,20 @@ body{
   </div>
 </div>
 
+<!-- ===== v2.1: 友だち追加の案内（送信前に友だちでないと分かったとき） ===== -->
+<div class="sheet-mask" id="friendSheet">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h3>公式LINEの友だち追加をお願いします</h3>
+    <div class="sub">公式LINEを友だち追加すると予約確定のお知らせが届きます</div>
+    <div class="friend-actions">
+      <a class="btn btn-primary" id="friendAddBtn" href="#" target="_blank" rel="noopener">公式LINEを友だち追加する</a>
+      <button class="btn btn-ghost" id="friendRecheck">追加したので再確認</button>
+    </div>
+    <button class="friend-skip" id="friendSkip">友だち追加せずに予約する<small>（LINEでのお知らせは届きません）</small></button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -447,6 +468,7 @@ body{
    ============================================================ */
 const API_URL = 'https://script.google.com/macros/s/AKfycbxO1uZxGZnDey5tyz1dadeT5Vgp-qRhCADtqVQnSR9G86m4PCUS4kiygRj3a62vT4LDxw/exec';   // GASウェブアプリのURL
 const LIFF_ID = '2008938862-l8r70f9S';          // LINE LIFF ID
+const OA_BASIC_ID = '';                          // 公式LINEのベーシックID（@から始まる。例 '@123abcde'）。空欄なら友だち追加ボタンは出ません
 /* ============================================================ */
 
 const WD = ['日','月','火','水','木','金','土'];
@@ -458,7 +480,10 @@ const state = {
   selectedClass: null,
   classCache: {},         // date -> classes[]
   fields: [],             // 管理画面で定義されたフォーム項目
-  submitting: false
+  submitting: false,
+  liffReady: false,       // v2.1: liff.init が成功したか
+  friendSkip: false,      // v2.1: 「友だち追加せずに予約する」を選んだ
+  friendChecking: false
 };
 
 /* ---------- 通信 ---------- */
@@ -504,6 +529,13 @@ async function boot(){
   try{
     if (LIFF_ID && !LIFF_ID.startsWith('PASTE')){
       await liff.init({ liffId: LIFF_ID });
+      state.liffReady = true;
+      // v2.1: LINE外のブラウザでは LINEログインを通して line_user_id を確実に取る
+      //       （LIFFブラウザ内では呼ばない。キャンセル時に繰り返さないよう1セッション1回まで）
+      if (!liff.isLoggedIn() && !liff.isInClient() && !loginTriedOnce()){
+        liff.login({ redirectUri: location.href });
+        return;
+      }
       if (liff.isLoggedIn()){
         const p = await liff.getProfile();
         state.profile.userId = p.userId || '';
@@ -814,6 +846,16 @@ document.getElementById('confirmSheet').onclick = (e)=>{ if (e.target.id==='conf
 function closeSheet(){ document.getElementById('confirmSheet').classList.remove('open'); }
 
 document.getElementById('confirmSubmit').onclick = async ()=>{
+  if (state.submitting || state.friendChecking) return;
+  // v2.1: 送信前に友だちチェック（未追加・ブロック中なら案内を出す。エラー時は止めない）
+  state.friendChecking = true;
+  const need = await needFriendAdd();
+  state.friendChecking = false;
+  if (need){ closeSheet(); openFriendSheet(); return; }
+  submitBooking();
+};
+
+async function submitBooking(){
   if (state.submitting) return;
   state.submitting = true;
   const btn = document.getElementById('confirmSubmit');
@@ -854,7 +896,71 @@ document.getElementById('confirmSubmit').onclick = async ()=>{
       setStep(1); show('view-select'); selectDate(state.selectedDate);
     }
   }
+}
+
+/* ---------- v2.1: 送信前の友だちチェック ---------- */
+/** 友だち追加の案内が必要なら true。チャネル未リンク等のエラー時は false（従来どおり予約を通す） */
+async function needFriendAdd(){
+  if (state.friendSkip || !state.liffReady) return false;
+  try{
+    if (!liff.isLoggedIn()) return false;
+    const f = await liff.getFriendship();
+    return !(f && f.friendFlag);
+  }catch(e){
+    return false;
+  }
+}
+function friendAddUrl(){
+  return OA_BASIC_ID ? 'https://line.me/R/ti/p/' + encodeURIComponent(OA_BASIC_ID) : '';
+}
+function openFriendSheet(){
+  const url = friendAddUrl();
+  const a = document.getElementById('friendAddBtn');
+  a.style.display = url ? '' : 'none';
+  a.href = url || '#';
+  document.getElementById('friendSheet').classList.add('open');
+}
+function closeFriendSheet(){ document.getElementById('friendSheet').classList.remove('open'); }
+/** 確認シートを開き直して送信（送信中の表示を確認シートのボタンに出すため） */
+function resumeSubmit(){
+  closeFriendSheet();
+  document.getElementById('confirmSheet').classList.add('open');
+  submitBooking();
+}
+document.getElementById('friendAddBtn').onclick = (e)=>{
+  const url = friendAddUrl();
+  if (!url){ e.preventDefault(); return; }
+  // LINEアプリ内（LIFFブラウザ）では liff.openWindow で開く。それ以外は通常のリンク（新しいタブ）
+  try{
+    if (state.liffReady && liff.isInClient()){ e.preventDefault(); liff.openWindow({ url: url, external: false }); }
+  }catch(_){}
 };
+document.getElementById('friendRecheck').onclick = async ()=>{
+  const btn = document.getElementById('friendRecheck');
+  if (btn.disabled) return;
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = '確認中…';
+  const need = await needFriendAdd();
+  btn.disabled = false; btn.textContent = orig;
+  if (need){ toast('まだ友だち追加を確認できません。追加してからもう一度お試しください', true); return; }
+  resumeSubmit();
+};
+document.getElementById('friendSkip').onclick = ()=>{
+  state.friendSkip = true;
+  resumeSubmit();
+};
+document.getElementById('friendSheet').onclick = (e)=>{ if (e.target.id==='friendSheet') closeFriendSheet(); };
+
+/** LINE外ブラウザでの自動ログインは1セッション1回まで（キャンセル後の繰り返しを防ぐ） */
+function loginTriedOnce(){
+  try{
+    if (sessionStorage.getItem('sol_taiken_login_tried')) return true;
+    sessionStorage.setItem('sol_taiken_login_tried', '1');
+    return false;
+  }catch(_){
+    return true;   // 保存できない環境では、繰り返しを避けるためログインへ飛ばさない
+  }
+}
 
 function renderDone(booking, payload){
   booking = booking || {};
