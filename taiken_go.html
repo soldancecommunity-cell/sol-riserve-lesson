@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>体験レッスン予約 | SoL Dance Community</title>
+<style>
+/* 旧LIFF（2008938862-l8r70f9S）の行き先ページ。新しいLIFFへ移すだけの中継です（taiken.html と同じ配色） */
+body{margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:24px; box-sizing:border-box; background:#FBFAF6; color:#1d1b24;
+  font-family:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif}
+.spinner{width:30px; height:30px; border:3px solid #dcd8ce; border-top-color:#ff7a45; border-radius:50%;
+  animation:spin .8s linear infinite; margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+p{color:#6c6a75; font-size:14px; margin:0 0 18px}
+a{display:inline-block; background:linear-gradient(95deg,#ff6a45,#ff9233 55%,#ffc23c); color:#fff;
+  text-decoration:none; font-weight:700; font-size:15px; padding:13px 22px; border-radius:14px}
+</style>
+</head>
+<body>
+<div>
+  <div class="spinner"></div>
+  <p>予約画面を開いています…</p>
+  <a id="go" href="https://liff.line.me/2012114697-625WFwk5">開かないときはこちら</a>
+</div>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+/* ============================================================
+   リッチメニューなどに貼ってある古いリンク（liff.line.me/2008938862-l8r70f9S）から、
+   公式LINEと同じプロバイダーの新しいLIFF（2012114697-625WFwk5）へ移します。
+   ※ 旧LIFFの設定で「エンドポイントURL」をこのページに、「サイズ」を Full にしてください
+   ============================================================ */
+const OLD_LIFF_ID  = '2008938862-l8r70f9S';
+const NEW_LIFF_URL = 'https://liff.line.me/2012114697-625WFwk5';
+
+(async function(){
+  try{
+    await liff.init({ liffId: OLD_LIFF_ID });
+    // LINEアプリ内：LIFF間遷移で新しいLIFFを開く（戻るボタンで閉じられる）
+    if (liff.isInClient()){ window.location.href = NEW_LIFF_URL; return; }
+  }catch(e){ /* 初期化できなくても下で移動する */ }
+  // LINE外のブラウザなど：新しいLIFFのURLへ（必要ならLINEログインを通って予約画面が開きます）
+  window.location.replace(NEW_LIFF_URL);
+})();
+</script>
+</body>
+</html>
