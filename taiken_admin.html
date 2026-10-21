@@ -416,6 +416,60 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
 .fmove{gap:4px}
 .fmove button{width:32px; height:26px; font-size:11px; border-radius:7px}
 
+/* ---- v2.2: 08 イベント（体験ウィークなど） ---- */
+.evrow{display:flex; align-items:center; gap:12px; border:1px solid var(--line); border-radius:var(--r-sm);
+  padding:12px; margin-bottom:9px; background:var(--surface-3); cursor:pointer; transition:.15s}
+.evrow.editing{border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 3px rgba(255,122,69,.12)}
+.evrow.off{opacity:.62}
+.evdot{width:14px; height:14px; border-radius:50%; flex:none}
+.evmain{flex:1; min-width:0}
+.evnm{font-weight:700; font-size:14px; display:flex; align-items:center; gap:7px; flex-wrap:wrap}
+.evpd{font-size:12px; color:var(--ink-2); margin-top:1px}
+.evacts{display:flex; gap:7px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+.evacts .toggle{gap:0; width:auto}
+@media(max-width:560px){ .evrow{flex-wrap:wrap} .evacts{width:100%} }
+.evcolors{display:flex; gap:10px; flex-wrap:wrap}
+.evcbtn{width:40px; height:40px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 1px var(--line-2); cursor:pointer; position:relative}
+.evcbtn.on{box-shadow:0 0 0 2px var(--ink)}
+.evcbtn.on::after{content:"✓"; position:absolute; inset:0; display:grid; place-items:center; color:#fff; font-weight:700}
+.evcal{max-width:460px}
+.evgrid{touch-action:none; user-select:none; -webkit-user-select:none}
+.adcal-day.has .mk{background:var(--sun-2)}
+.adcal-day.evsel .cell{background:var(--evc); border-color:transparent}
+.adcal-day.evsel .dn{color:#fff}
+.adcal-day.evsel .mk{background:rgba(255,255,255,.85)}
+.evquick{display:flex; gap:7px; flex-wrap:wrap; margin-top:10px}
+.evquick button{border:1px solid var(--line-2); background:var(--surface); border-radius:999px; padding:8px 13px;
+  font-size:12.5px; font-weight:600; cursor:pointer; color:var(--ink)}
+.evquick button:active{background:var(--surface-2)}
+.evsum{margin-top:10px; font-size:13px; background:var(--surface); border:1px dashed var(--line-2); border-radius:10px; padding:9px 12px}
+.evsum b{font-family:var(--num)}
+/* 申込画面での見え方（プレビュー） */
+.evpv{max-width:375px; border:1px solid var(--line); border-radius:var(--r); background:var(--bg); padding:12px}
+.evpv-banner{border-radius:16px; padding:12px 13px; color:#fff; margin-bottom:10px; position:relative}
+.evpv-banner .t{font-weight:700; font-size:15px}
+.evpv-banner .p{font-family:var(--num); font-weight:600; font-size:12.5px; opacity:.95; padding-right:84px}
+.evpv-banner .m{font-size:12.5px; margin-top:3px; opacity:.95; padding-right:84px}
+.evpv-banner .go{position:absolute; right:11px; bottom:9px; font-size:11.5px; font-weight:700; background:rgba(255,255,255,.22); border-radius:999px; padding:3px 9px}
+.evpv-banner .offnote{display:inline-block; font-size:10.5px; font-weight:700; background:rgba(0,0,0,.18); border-radius:6px; padding:1px 7px; margin-left:6px; vertical-align:2px}
+.evpv-cal{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:10px}
+.evpv-ym{font-family:var(--num); font-weight:700; font-size:15px; text-align:center; margin-bottom:6px}
+.evpv-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:3px}
+.evpv-day{aspect-ratio:1/1; position:relative}
+.evpv-day .c{position:absolute; inset:0; border-radius:10px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px}
+.evpv-day .n{font-family:var(--num); font-weight:600; font-size:13px; color:var(--ink-3)}
+.evpv-day .k{width:4px; height:4px; border-radius:50%}
+.evpv-day.av .c{background:var(--accent-soft)}
+.evpv-day.av .n{color:var(--ink)}
+.evpv-day.av .k{background:var(--sun-2)}
+.evpv-day.mu .n{opacity:.45}
+.evpv-day.ev.av .c{background:var(--evsoft); box-shadow:inset 0 0 0 1.5px var(--evc)}
+.evpv-day .bar{position:absolute; left:5px; right:5px; bottom:2px; height:3px; border-radius:3px}
+.evpv-class{margin-top:10px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13px}
+.evpv-class .cn{font-weight:700; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.evpv-class .nt{font-size:11.5px; font-weight:600; margin-top:3px}
+.evpill{font-size:10px; font-weight:700; border-radius:999px; padding:2px 8px; color:#fff}
+
 </style>
 </head>
 <body>
@@ -452,6 +506,7 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
     <button class="tab" data-tab="sub" onclick="switchTab('sub')"><span class="ti">05</span>代講・変更</button>
     <button class="tab" data-tab="form" onclick="switchTab('form')"><span class="ti">06</span>フォーム項目</button>
     <button class="tab" data-tab="notify" onclick="switchTab('notify')"><span class="ti">07</span>通知・文言</button>
+    <button class="tab" data-tab="events" onclick="switchTab('events')"><span class="ti">08</span>イベント</button>
   </div>
 
   <!-- ---- 01 受付設定 ---- -->
@@ -826,6 +881,75 @@ textarea{resize:vertical; min-height:70px; line-height:1.55; font-size:14px}
       <button class="btn btn-primary btn-block" onclick="saveSettings('通知・文言')">通知と文言を保存</button>
     </div>
   </div>
+
+  <!-- ---- 08 イベント（v2.2：体験ウィークなど） ---- -->
+  <div class="panel" id="panel-events">
+    <div class="card">
+      <span class="eyebrow">Events</span>
+      <h2>イベント一覧</h2>
+      <p class="desc">体験ウィークなど、特定の日を申込画面で目立たせます。スイッチで一時停止もできます（消えません）。</p>
+      <div class="warnbox hide" id="evDirty">保存していない変更があります。いちばん下の「イベントを保存」を押してください。</div>
+      <div id="evList"></div>
+      <div class="btnrow"><button class="btn btn-ghost btn-sm" onclick="evNew()">＋ 新しいイベントを作る</button></div>
+    </div>
+
+    <div class="card" id="evEditor">
+      <span class="eyebrow">Edit</span>
+      <h2 id="evEdTitle">イベントの設定</h2>
+      <p class="desc">名前・色・ひとこと・日付を決めるだけです。</p>
+      <div class="field">
+        <label>名前 <span class="sub">20文字まで</span></label>
+        <input type="text" id="evName" maxlength="20" placeholder="例）体験ウィーク">
+      </div>
+      <div class="field">
+        <label>色</label>
+        <div class="evcolors" id="evColors"></div>
+      </div>
+      <div class="field">
+        <label>ひとこと <span class="sub">任意・40文字まで。申込画面のお知らせとクラスの下に出ます</span></label>
+        <input type="text" id="evNote" maxlength="40" placeholder="例）期間中は体験料無料！">
+      </div>
+      <div class="field">
+        <label>日付</label>
+        <div class="hintbox" style="margin:0 0 10px">
+          ・<b>1日ずつタップ</b>すると、選ぶ／外すができます<br>
+          ・<b>指でなぞる</b>（パソコンはドラッグ）と、まとめて選べます<br>
+          ・オレンジの点は、体験を受け付けているクラスがある日です
+        </div>
+        <div class="adcal evcal">
+          <div class="adcal-head">
+            <button class="cal-nav" id="evPrev" onclick="evCalNav(-1)">‹</button>
+            <div class="adcal-ym" id="evYm">—</div>
+            <button class="cal-nav" id="evNext" onclick="evCalNav(1)">›</button>
+          </div>
+          <div class="adcal-dow"><span class="s">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="t">土</span></div>
+          <div class="adcal-grid evgrid" id="evGrid"></div>
+          <div class="adcal-legend">
+            <span><i style="background:var(--sun-2); border-radius:50%"></i>体験できるクラスがある日</span>
+            <span><i id="evLgSel" style="border-radius:50%"></i>このイベントの日</span>
+          </div>
+        </div>
+        <div class="evquick">
+          <button type="button" onclick="evQuick('weekend')">この月の土日</button>
+          <button type="button" onclick="evQuick('weekday')">この月の平日</button>
+          <button type="button" onclick="evQuick('classdays')">この月のクラスがある日</button>
+          <button type="button" onclick="evQuick('clear')">全部はずす</button>
+        </div>
+        <div class="evsum" id="evSum"></div>
+      </div>
+    </div>
+
+    <div class="card" id="evPreviewCard">
+      <span class="eyebrow">Preview</span>
+      <h2>申込画面での見え方</h2>
+      <p class="desc">保存する前に、お客さんの画面でどう見えるかを確かめられます（クラスがある日は目安です）。</p>
+      <div class="evpv" id="evPreview"></div>
+    </div>
+
+    <div class="save-bar">
+      <button class="btn btn-primary btn-block" id="evSaveBtn" onclick="evSave()">イベントを保存</button>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -959,6 +1083,8 @@ function applySettings(res){
   renderFormSchema();
   renderNotify();
   renderTexts();
+  // v2.2: イベントは別の入れ物。ログイン時など events が来たときだけ読み込み、それ以外は描き直しのみ
+  if (Array.isArray(res.events)) evLoad(res.events); else renderEvents();
 }
 
 /* ---------- 01 受付設定 ---------- */
@@ -2366,6 +2492,285 @@ async function saveNewBooking(btn){
   }
 }
 
+/* ============================================================
+   v2.2 追加：08 イベント（体験ウィークなど）
+   保存先はサーバーの TRIAL_EVENTS（ほかのタブの設定とは別）。「イベントを保存」で確定します。
+   ============================================================ */
+const EVENT_COLORS = [   // 申込画面（taiken.html）と同じ色
+  { key:'pink',   c:'#e8559a', soft:'#fdebf3', name:'ピンク' },
+  { key:'orange', c:'#ff7a45', soft:'#fff0e8', name:'オレンジ' },
+  { key:'green',  c:'#1f9d63', soft:'#e7f6ee', name:'みどり' },
+  { key:'blue',   c:'#2c7be5', soft:'#e9f1fd', name:'あお' },
+  { key:'purple', c:'#8a5cf6', soft:'#f1ebfe', name:'むらさき' }
+];
+const ev = { list: [], editingId: null, month: '', dirty: false, drag: null };
+
+function evColor(k){ return EVENT_COLORS.find(c=>c.key===k) || EVENT_COLORS[0]; }
+function evAddDays(s, n){
+  const p = s.split('-').map(Number); const d = new Date(p[0], p[1]-1, p[2]+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function evMd(s){ const p = s.split('-').map(Number); return p[1]+'/'+p[2]; }
+function evMdw(s){ return evMd(s)+'（'+wdCharOf(s)+'）'; }
+/** 選んだ日を「11/9〜11/15、11/21」のように、続いている日はまとめて書く */
+function evRuns(days, withWd){
+  const a = [...days].sort(); if (!a.length) return '';
+  const f = withWd ? evMdw : evMd; const runs = []; let s = a[0], p = a[0];
+  for (let i=1; i<a.length; i++){ if (a[i] === evAddDays(p,1)){ p = a[i]; continue; } runs.push([s,p]); s = p = a[i]; }
+  runs.push([s,p]);
+  return runs.map(r=> r[0]===r[1] ? f(r[0]) : f(r[0])+'〜'+f(r[1])).join('、');
+}
+/** お知らせの帯の期間：飛び石が多いときは「11/3（火）〜11/28（土）のうち12日」に縮める（申込画面と同じ） */
+function evBannerPeriod(days){
+  const t = evRuns(days, true); if (t.split('、').length <= 2) return t;
+  const a = [...days].sort(); return evMdw(a[0])+'〜'+evMdw(a[a.length-1])+'のうち'+a.length+'日';
+}
+function evEditing(){ return ev.list.find(e=>e.id===ev.editingId) || null; }
+function evHasClass(ymd){ return candidatesForDate(ymd).length > 0; }
+function evSetDirty(on){
+  ev.dirty = (on !== false);
+  const d = document.getElementById('evDirty'); if (d) d.classList.toggle('hide', !ev.dirty);
+}
+function evFirstMonth(e){
+  const today = todayLocalYmd();
+  const next = e ? [...e.days].sort().find(d=>d >= today) : '';
+  return (next || today).slice(0,7);
+}
+
+/** サーバーから受け取った一覧を読み込む（ログイン時・保存後） */
+function evLoad(list){
+  ev.list = (Array.isArray(list) ? list : []).map(e=>({
+    id: String(e.id), name: e.name || '', color: e.color || 'pink', note: e.note || '',
+    enabled: e.enabled !== false, days: new Set(Array.isArray(e.days) ? e.days : [])
+  }));
+  if (!evEditing()){ ev.editingId = ev.list.length ? ev.list[0].id : null; ev.month = ''; }
+  if (!ev.month) ev.month = evFirstMonth(evEditing());
+  evSetDirty(false);
+  renderEvents();
+}
+
+function renderEvents(){
+  if (!document.getElementById('evList')) return;
+  if (!ev.month) ev.month = evFirstMonth(evEditing());
+  renderEvList(); renderEvEditor(); renderEvPreview();
+}
+
+function renderEvList(){
+  const box = document.getElementById('evList');
+  if (!ev.list.length){
+    box.innerHTML = '<div class="empty" style="padding:18px"><span class="ico">🎉</span>イベントはまだありません。「＋ 新しいイベントを作る」から作れます</div>';
+    return;
+  }
+  const today = todayLocalYmd();
+  box.innerHTML = ev.list.map(e=>{
+    const c = evColor(e.color);
+    const ended = e.days.size > 0 && [...e.days].every(d=>d < today);
+    const pd = e.days.size ? evRuns(e.days)+'（'+e.days.size+'日）' : '日付が未選択';
+    const id = esc(e.id);
+    return '<div class="evrow'+(e.id===ev.editingId?' editing':'')+(e.enabled?'':' off')+'" onclick="evEdit(\''+id+'\')">'+
+      '<span class="evdot" style="background:'+c.c+'"></span>'+
+      '<div class="evmain"><div class="evnm">'+esc(e.name || '（名前なし）')+(ended?'<span class="pill off">終了</span>':'')+'</div>'+
+        '<div class="evpd">'+esc(pd)+'</div></div>'+
+      '<div class="evacts" onclick="event.stopPropagation()">'+
+        '<label class="toggle" title="申込画面に出す／出さない"><input type="checkbox" '+(e.enabled?'checked':'')+
+          ' onchange="evToggle(\''+id+'\', this.checked)"><span class="track"></span></label>'+
+        '<button class="btn btn-ghost btn-sm" onclick="evCopy(\''+id+'\')">4週間後に写す</button>'+
+        '<button class="del-x" title="削除" onclick="evRemove(\''+id+'\')">×</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+function renderEvEditor(){
+  const e = evEditing();
+  document.getElementById('evEditor').classList.toggle('hide', !e);
+  document.getElementById('evPreviewCard').classList.toggle('hide', !e);
+  if (!e) return;
+  document.getElementById('evEdTitle').textContent = '「'+(e.name || '名前なし')+'」の設定';
+  const nameEl = document.getElementById('evName'), noteEl = document.getElementById('evNote');
+  if (document.activeElement !== nameEl) nameEl.value = e.name;
+  if (document.activeElement !== noteEl) noteEl.value = e.note;
+  document.getElementById('evColors').innerHTML = EVENT_COLORS.map(c=>
+    '<button type="button" class="evcbtn'+(c.key===e.color?' on':'')+'" title="'+c.name+'" style="background:'+c.c+'"'+
+    ' onclick="evSetColor(\''+c.key+'\')"></button>').join('');
+  document.getElementById('evLgSel').style.background = evColor(e.color).c;
+  renderEvCal();
+  renderEvSum();
+}
+function renderEvSum(){
+  const e = evEditing(); if (!e) return;
+  document.getElementById('evSum').innerHTML = e.days.size
+    ? '<b>'+e.days.size+'日</b>を選択中：'+esc(evRuns(e.days, true))
+    : '日付はまだ選ばれていません';
+}
+
+function renderEvCal(){
+  const e = evEditing(); const grid = document.getElementById('evGrid'); if (!e || !grid) return;
+  const c = evColor(e.color), ym = ev.month, p = ym.split('-'), today = todayLocalYmd();
+  const minM = today.slice(0,7), maxM = monthAdd(minM, 12);
+  document.getElementById('evYm').textContent = p[0]+'年'+Number(p[1])+'月';
+  document.getElementById('evPrev').disabled = (ym <= minM);
+  document.getElementById('evNext').disabled = (ym >= maxM);
+  const lead = firstWeekday(ym), total = daysInMonth(ym);
+  let h = '';
+  for (let d=1; d<=total; d++){
+    const ymd = ym+'-'+String(d).padStart(2,'0');
+    const past = ymd < today, sel = e.days.has(ymd);
+    const cls = 'adcal-day'+(past?' muted':'')+(evHasClass(ymd)?' has':'')+(sel?' evsel':'');
+    const st = ((d===1 && lead>0) ? 'grid-column-start:'+(lead+1)+';' : '') + (sel ? '--evc:'+c.c : '');
+    h += '<div class="'+cls+'" data-d="'+ymd+'"'+(st?' style="'+st+'"':'')+'><div class="cell"><span class="dn">'+d+'</span><span class="mk"></span></div></div>';
+  }
+  grid.innerHTML = h;
+}
+function evCalNav(delta){ ev.month = monthAdd(ev.month, delta); renderEvCal(); renderEvPreview(); }
+
+/* 日付は「タップで1日ずつ」「なぞって（ドラッグで）まとめて」。最初に触った日が未選択なら選ぶ、選択済みなら外す */
+(function evInitDrag(){
+  const grid = document.getElementById('evGrid'); if (!grid) return;
+  const cellAt = (x, y)=>{
+    const el = document.elementFromPoint(x, y);
+    const c = el && el.closest ? el.closest('#evGrid .adcal-day[data-d]') : null;
+    return (c && !c.classList.contains('muted')) ? c : null;
+  };
+  grid.addEventListener('pointerdown', p0=>{
+    const e = evEditing(); const cell = cellAt(p0.clientX, p0.clientY); if (!e || !cell) return;
+    const d = cell.dataset.d;
+    ev.drag = { start: d, add: !e.days.has(d), base: new Set(e.days) };
+    evApplyDrag(d); p0.preventDefault();
+  });
+  window.addEventListener('pointermove', p1=>{
+    if (!ev.drag) return;
+    const cell = cellAt(p1.clientX, p1.clientY); if (cell) evApplyDrag(cell.dataset.d);
+  });
+  const end = ()=>{ if (ev.drag){ ev.drag = null; renderEvents(); } };
+  window.addEventListener('pointerup', end);
+  window.addEventListener('pointercancel', end);
+})();
+function evApplyDrag(cur){
+  const e = evEditing(); if (!e || !ev.drag) return;
+  const today = todayLocalYmd(); const next = new Set(ev.drag.base);
+  let a = ev.drag.start, b = cur; if (a > b){ const t = a; a = b; b = t; }
+  for (let d = a; d <= b; d = evAddDays(d, 1)){ if (d < today) continue; if (ev.drag.add) next.add(d); else next.delete(d); }
+  e.days = next; evSetDirty();
+  renderEvCal(); renderEvSum(); renderEvList(); renderEvPreview();
+}
+function evQuick(kind){
+  const e = evEditing(); if (!e) return;
+  if (kind === 'clear'){
+    if (e.days.size && !confirm('「'+(e.name||'このイベント')+'」の日付を全部はずします。よろしいですか？')) return;
+    e.days = new Set();
+  } else {
+    const today = todayLocalYmd(), total = daysInMonth(ev.month);
+    for (let d=1; d<=total; d++){
+      const ymd = ev.month+'-'+String(d).padStart(2,'0'); if (ymd < today) continue;
+      const w = WD_ALL.indexOf(wdCharOf(ymd));
+      if (kind === 'weekend' && (w===0 || w===6)) e.days.add(ymd);
+      if (kind === 'weekday' && w>=1 && w<=5) e.days.add(ymd);
+      if (kind === 'classdays' && evHasClass(ymd)) e.days.add(ymd);
+    }
+  }
+  evSetDirty(); renderEvents();
+}
+
+function evEdit(id){
+  ev.editingId = id; ev.month = evFirstMonth(evEditing()); renderEvents();
+  const ed = document.getElementById('evEditor');
+  if (ed && window.innerWidth < 900) ed.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function evSetColor(k){ const e = evEditing(); if (!e) return; e.color = k; evSetDirty(); renderEvents(); }
+function evToggle(id, on){
+  const e = ev.list.find(x=>x.id===id); if (!e) return;
+  e.enabled = on; evSetDirty(); renderEvList(); renderEvPreview();
+  toast(on ? '申込画面に出す設定にしました（保存で確定）' : '申込画面に出さない設定にしました（消えてはいません）', 'ok');
+}
+function evNewId(){ return 'e' + Date.now().toString(36) + Math.floor(Math.random()*1000).toString(36); }
+function evNew(){
+  const used = ev.list.map(e=>e.color);
+  const color = (EVENT_COLORS.find(c=>used.indexOf(c.key) < 0) || EVENT_COLORS[0]).key;
+  const e = { id: evNewId(), name: '新しいイベント', color: color, note: '', enabled: true, days: new Set() };
+  ev.list.push(e); ev.editingId = e.id; ev.month = todayLocalYmd().slice(0,7);
+  evSetDirty(); renderEvents();
+  const n = document.getElementById('evName'); n.focus(); n.select();
+}
+function evCopy(id){
+  const src = ev.list.find(x=>x.id===id); if (!src) return;
+  const e = { id: evNewId(), name: src.name, color: src.color, note: src.note, enabled: false,
+              days: new Set([...src.days].map(d=>evAddDays(d, 28))) };
+  ev.list.push(e); ev.editingId = e.id; ev.month = evFirstMonth(e);
+  evSetDirty(); renderEvents();
+  toast('4週間後（同じ曜日）に写しました。日付を確かめてから ON にして保存してください', 'ok');
+}
+function evRemove(id){
+  const e = ev.list.find(x=>x.id===id); if (!e) return;
+  if (!confirm('「'+(e.name||'このイベント')+'」を削除します。\n\n「イベントを保存」を押すと元に戻せません。よろしいですか？')) return;
+  ev.list = ev.list.filter(x=>x.id!==id);
+  if (ev.editingId === id){ ev.editingId = ev.list.length ? ev.list[0].id : null; ev.month = evFirstMonth(evEditing()); }
+  evSetDirty(); renderEvents();
+}
+(function evInitInputs(){
+  const n = document.getElementById('evName'), t = document.getElementById('evNote'); if (!n || !t) return;
+  n.addEventListener('input', ()=>{ const e = evEditing(); if (!e) return; e.name = n.value; evSetDirty();
+    document.getElementById('evEdTitle').textContent = '「'+(n.value || '名前なし')+'」の設定'; renderEvList(); renderEvPreview(); });
+  t.addEventListener('input', ()=>{ const e = evEditing(); if (!e) return; e.note = t.value; evSetDirty(); renderEvPreview(); });
+})();
+
+/** 申込画面での見え方：お知らせの帯＋表示中の月のカレンダー＋クラスの例（編集中のイベントは OFF でも見せる） */
+function renderEvPreview(){
+  const box = document.getElementById('evPreview'); const cur = evEditing(); if (!box || !cur) return;
+  const today = todayLocalYmd();
+  const shown = ev.list.filter(e=> e.id === cur.id || (e.enabled && [...e.days].some(d=>d >= today)));
+  const banners = shown.filter(e=>[...e.days].some(d=>d >= today)).map(e=>{
+    const c = evColor(e.color), up = [...e.days].filter(d=>d >= today);
+    return '<div class="evpv-banner" style="background:linear-gradient(100deg,'+c.c+','+c.c+'cc)">'+
+      '<div class="t">🎉 '+esc(e.name || 'イベント')+(e.enabled?'':'<span class="offnote">OFF中：まだ出ません</span>')+'</div>'+
+      '<div class="p">'+esc(evBannerPeriod(up))+'</div>'+
+      (e.note ? '<div class="m">'+esc(e.note)+'</div>' : '')+
+      '<span class="go">日付を見る ›</span></div>';
+  }).join('');
+  const ym = ev.month, p = ym.split('-'), lead = firstWeekday(ym), total = daysInMonth(ym);
+  let cells = ''; let sample = '';
+  for (let d=1; d<=total; d++){
+    const ymd = ym+'-'+String(d).padStart(2,'0');
+    const av = ymd >= today && evHasClass(ymd);
+    const evs = shown.filter(e=>e.days.has(ymd)); const c = evs.length ? evColor(evs[0].color) : null;
+    const st = ((d===1 && lead>0) ? 'grid-column-start:'+(lead+1)+';' : '') + (c ? '--evc:'+c.c+';--evsoft:'+c.soft : '');
+    cells += '<div class="evpv-day'+(av?' av':' mu')+(c?' ev':'')+'"'+(st?' style="'+st+'"':'')+'><div class="c"><span class="n">'+d+'</span><span class="k"></span></div>'+
+             (c ? '<span class="bar" style="background:'+c.c+'"></span>' : '')+'</div>';
+    if (!sample && av && cur.days.has(ymd)){
+      const k = candidatesForDate(ymd)[0]; const cc = evColor(cur.color);
+      sample = '<div class="evpv-class"><div style="font-size:11.5px;color:var(--ink-2);margin-bottom:3px">例：'+esc(evMdw(ymd))+' のクラス</div>'+
+        '<div class="cn">'+esc(k.class_name || k.class_id)+'<span class="evpill" style="background:'+cc.c+'">'+esc(cur.name || 'イベント')+'</span></div>'+
+        (cur.note ? '<div class="nt" style="color:'+cc.c+'">🎉 '+esc(cur.note)+'</div>' : '')+'</div>';
+    }
+  }
+  box.innerHTML = (banners || '<div class="desc" style="margin:0 0 10px">この月以降に日付がないため、お知らせの帯は出ません</div>')+
+    '<div class="evpv-cal"><div class="evpv-ym">'+p[0]+'年'+Number(p[1])+'月</div>'+
+    '<div class="adcal-dow"><span class="s">日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span class="t">土</span></div>'+
+    '<div class="evpv-grid">'+cells+'</div></div>'+ sample;
+}
+
+async function evSave(){
+  if (state.busy) return;
+  const btn = document.getElementById('evSaveBtn');
+  state.busy = true; btn.disabled = true; const orig = btn.textContent; btn.textContent = '保存中…';
+  const payload = ev.list.map(e=>({ id:e.id, name:e.name, color:e.color, note:e.note, enabled:e.enabled, days:[...e.days].sort() }));
+  let res;
+  // 項目名は eventList（events だとサーバーが LINE の Webhook と見なすため）
+  try{ res = await apiPost('adminSaveEvents', { eventList: payload }); }catch(_){ res = null; }
+  state.busy = false; btn.disabled = false; btn.textContent = orig;
+  if (res && res.ok){
+    const keep = ev.editingId, month = ev.month;
+    evLoad(res.events);
+    if (ev.list.some(e=>e.id===keep)){ ev.editingId = keep; ev.month = month; renderEvents(); }
+    toast('イベントを保存しました', 'ok');
+  } else {
+    const e = res && res.error;
+    toast(e === 'too_large' ? '保存できませんでした：イベントの量が多すぎます（終わったイベントを消してください）'
+        : e === 'unknown_action' ? '保存できませんでした：サーバー（GAS）がまだ新しい版になっていません'
+        : '保存に失敗しました：' + (e || '通信エラー'), 'err');
+  }
+}
+window.addEventListener('beforeunload', (e)=>{ if (ev.dirty){ e.preventDefault(); e.returnValue = ''; } });
+
 /* ---------- タブ切替 ---------- */
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on', t.getAttribute('data-tab')===name));
@@ -2382,6 +2787,7 @@ function switchTab(name){
     // 初回だけ自動ロード
     if (!switchTab._bkLoaded){ switchTab._bkLoaded = true; loadBookings(); }
   }
+  if (name === 'events') renderEvents();   // v2.2
 }
 
 /* ---------- ユーティリティ ---------- */
